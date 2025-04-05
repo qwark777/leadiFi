@@ -23,9 +23,6 @@ async def get_tel(message: types.Message, state: FSMContext):
     await print_form_form(str(a[0]), bot, a)
 
 
-
-
-
 async def main():
     # dp.startup.register(start_message)
     # dp.shutdown.register(end_message)
