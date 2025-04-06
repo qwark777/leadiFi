@@ -48,3 +48,23 @@ pattern_for_group = '''<b>❗Найден новый lead №{i}❗44-ФЗ/94-Ф
 <b>Контакты учредителей <code>{i_con_own1}</code></b>
 <b>-------------------------------</b>
 '''
+
+keyboard1 = InlineKeyboardMarkup(
+    inline_keyboard=
+    [
+        [
+            InlineKeyboardButton(text="Забираю ☑️", callback_data="btn_1_01")
+        ]
+    ]
+)
+
+
+keyboard2 = InlineKeyboardMarkup(
+    inline_keyboard=
+    [
+        [
+            InlineKeyboardButton(text="Подтвердить ✅", callback_data="btn_1_02"),
+            InlineKeyboardButton(text="Назад 🔙", callback_data="btn_1_03")
+        ]
+    ]
+)
