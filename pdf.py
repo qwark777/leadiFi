@@ -69,11 +69,3 @@ async def pdf_parcer2(pdf_path: str, answer: defaultdict) -> bool:
         return True
 
 
-async def get_name_of_files():
-    directory = r"C:\sovk"
-    files = os.listdir(directory)
-    print(files)
-    for i in files:
-        os.remove(directory + '\\' + i)
-
-

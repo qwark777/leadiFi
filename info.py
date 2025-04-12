@@ -63,7 +63,7 @@ keyboard2 = InlineKeyboardMarkup(
     inline_keyboard=
     [
         [
-            InlineKeyboardButton(text="Подтвердить ✅", callback_data="btn_1_02"),
+            InlineKeyboardButton(text="✅", callback_data="btn_1_02"),
             InlineKeyboardButton(text="Назад 🔙", callback_data="btn_1_03")
         ]
     ]

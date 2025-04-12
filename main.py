@@ -11,6 +11,7 @@ from pdf import pdf_parcer1, pdf_parcer2
 
 global inn
 
+
 async def algorithm(bot: Bot):
     global inn
     inn = await eac()
@@ -26,7 +27,7 @@ async def algorithm(bot: Bot):
     await subprocess(bot)
 
 
-async def subprocess(bot:Bot):
+async def subprocess(bot: Bot):
     for i in inn.keys():
         if await pdf_parcer1(fr"C:\sovk\{i}.pdf", inn[i]) and await pdf_parcer2(fr"C:\sovk\{inn[i]['inn_owner']}.pdf",
                                                                                 inn[i]):
@@ -38,19 +39,21 @@ async def subprocess(bot:Bot):
         await print_form(i, bot)
 
 
-
 counter = 0
 
 
-async def print_form_form(i: str, bot: Bot, arr: list):
+async def print_form_form(i: str, bot: Bot):
     global counter
     stri = pattern_for_group
     await bot.send_message(Admin.id_chat_users,
                            stri.format(i=counter, link=inn[i]['link'], name=inn[i]['name'], cost=inn[i]['cost'],
                                        date=inn[i]['date'], inn_owner=inn[i]['inn_owner'],
-                                       i_dir2=inn[i]['ИНН_DIR2'], i_own2=', '.join(inn[i]['ИНН_OWN2']), i_con_dir2=arr[1], i_con_own2= arr[2],
+                                       i_dir2=inn[i]['ИНН_DIR2'], i_own2=', '.join(inn[i]['ИНН_OWN2']),
+                                       i_con_dir2=inn[i]['ИНН_DIR2_contacts'], i_con_own2=inn[i]['ИНН_OWN2_contacts'],
                                        inn_slave=i, i_dir1=inn[i]['ИНН_DIR1'], i_own1=', '.join(inn[i]['ИНН_OWN1']),
-                                       cont_from_page=inn[i]['cont_from_page'], i_con_dir1=arr[3], i_con_own1= arr[4]), parse_mode="HTML", reply_markup=keyboard1)
+                                       cont_from_page=inn[i]['cont_from_page'], i_con_dir1=inn[i]['ИНН_DIR1_contacts'],
+                                       i_con_own1=inn[i]['ИНН_DIR1_contacts']), parse_mode="HTML",
+                           reply_markup=keyboard1)
 
 
 async def print_form(i: int, bot: Bot):
@@ -63,8 +66,5 @@ async def print_form(i: int, bot: Bot):
                                        i_dir2=inn[i]['ИНН_DIR2'], i_own2=', '.join(inn[i]['ИНН_OWN2']),
                                        inn_slave=i, i_dir1=inn[i]['ИНН_DIR1'], i_own1=', '.join(inn[i]['ИНН_OWN1']),
                                        cont_from_page=inn[i]['cont_from_page']), parse_mode="HTML")
-
-
-global now_inn
 
 
