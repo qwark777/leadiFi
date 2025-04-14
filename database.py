@@ -32,6 +32,12 @@ async def alarm(bot: Bot):
                 for i in result_set:
                     chat = await bot.get_chat(i[0])
                     await bot.send_message(Admin.id_chat_users, f'Напоминаю @{chat.username} о клиенте', reply_to_message_id=i[2])
+                    st = f'DELETE FROM users WHERE id_message={i[2]}'
+                    async with pool.acquire() as con:
+                        async with con.cursor() as cur:
+                            await cur.execute(st)
+                            await cur.fetchall()
+                        await con.commit()
                 await conn.commit()
         return False
     except Exception as e:

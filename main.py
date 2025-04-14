@@ -1,70 +1,53 @@
 import asyncio
-from collections import defaultdict
 
 from aiogram import Bot
+from aiogram import Router, types
 
 from eac import eac
-from god_eye import probiv
-from info import Admin, pattern, pattern_for_group, keyboard1
+from info import Admin, keyboard3
 from nal import process_inn
 from pdf import pdf_parcer1, pdf_parcer2
+from tg import send_message, get_users_data
 
 global inn
+global bot
 
+sub_dp = Router()
+sem = asyncio.Semaphore(1)
+@sub_dp.callback_query(lambda c: c.data and c.data.startswith('btn_2_'))
+async def continue_registration_calling(callback_query: types.CallbackQuery):
+    await bot.answer_callback_query(callback_query.id)
+    index = int(callback_query.data.split("_")[-1])
+    if index == 1:
+        await process_user(callback_query.message.text.split('\n')[0])
+    elif index == 2:
+        del inn[callback_query.message.text.split('\n')[0]]
 
-async def algorithm(bot: Bot):
+async def algorithm(bt: Bot):
+    global bot
+    bot = bt
     global inn
     inn = await eac()
+    await  check_names()
+
+async def check_names():
     for i in inn.keys():
-        if not await process_inn(i):
-            await subprocess(bot)
-            await asyncio.sleep(60)
-            await process_inn(i)
-        if not await process_inn(inn[i]['inn_owner']):
-            await subprocess(bot)
-            await asyncio.sleep(60)
-            await process_inn(inn[i]['inn_owner'])
-    await subprocess(bot)
+        await bot.send_message(Admin.id_ivan_id, f'{i}\n{inn[i]['name']}\n{inn[i]['cost']}', reply_markup=keyboard3)
+
+async def process_user(i:str):
+    if not await process_inn(int(i)):
+        await asyncio.sleep(60)
+        await process_inn(int(i))
+    if not await process_inn(inn[i]['inn_owner']):
+        await asyncio.sleep(60)
+        await process_inn(inn[i]['inn_owner'])
+    if await pdf_parcer1(fr"C:\sovk\{i}.pdf", inn[i]) and await pdf_parcer2(fr"C:\sovk\{inn[i]['inn_owner']}.pdf", inn[i]):
+        pass
+    else:
+        print(f'Lost file{i}')
+    await sem.acquire()
+    await get_users_data(inn[i], sem, i, bot) # надо добавить семафоры или переделать get_users_data под обработку одного юзера
 
 
-async def subprocess(bot: Bot):
-    for i in inn.keys():
-        if await pdf_parcer1(fr"C:\sovk\{i}.pdf", inn[i]) and await pdf_parcer2(fr"C:\sovk\{inn[i]['inn_owner']}.pdf",
-                                                                                inn[i]):
-            # await probiv(i, inn)
-            pass
-        else:
-            print(f'Lost file{i}')
-    for i in inn.keys():
-        await print_form(i, bot)
-
-
-counter = 0
-
-
-async def print_form_form(i: str, bot: Bot):
-    global counter
-    stri = pattern_for_group
-    await bot.send_message(Admin.id_chat_users,
-                           stri.format(i=counter, link=inn[i]['link'], name=inn[i]['name'], cost=inn[i]['cost'],
-                                       date=inn[i]['date'], inn_owner=inn[i]['inn_owner'],
-                                       i_dir2=inn[i]['ИНН_DIR2'], i_own2=', '.join(inn[i]['ИНН_OWN2']),
-                                       i_con_dir2=inn[i]['ИНН_DIR2_contacts'], i_con_own2=inn[i]['ИНН_OWN2_contacts'],
-                                       inn_slave=i, i_dir1=inn[i]['ИНН_DIR1'], i_own1=', '.join(inn[i]['ИНН_OWN1']),
-                                       cont_from_page=inn[i]['cont_from_page'], i_con_dir1=inn[i]['ИНН_DIR1_contacts'],
-                                       i_con_own1=inn[i]['ИНН_DIR1_contacts']), parse_mode="HTML",
-                           reply_markup=keyboard1)
-
-
-async def print_form(i: int, bot: Bot):
-    stri = pattern
-    global counter
-    counter += 1
-    await bot.send_message(Admin.id_ivan_id,
-                           stri.format(i=counter, link=inn[i]['link'], name=inn[i]['name'], cost=inn[i]['cost'],
-                                       date=inn[i]['date'], inn_owner=inn[i]['inn_owner'],
-                                       i_dir2=inn[i]['ИНН_DIR2'], i_own2=', '.join(inn[i]['ИНН_OWN2']),
-                                       inn_slave=i, i_dir1=inn[i]['ИНН_DIR1'], i_own1=', '.join(inn[i]['ИНН_OWN1']),
-                                       cont_from_page=inn[i]['cont_from_page']), parse_mode="HTML")
 
 

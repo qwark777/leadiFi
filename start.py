@@ -12,28 +12,29 @@ from dotenv import load_dotenv, find_dotenv
 
 from database import create_con_pol, add_user, alarm
 from info import Admin, keyboard2, keyboard1
-from main import algorithm, print_form_form
+from main import algorithm,  sub_dp
 from tg import auth
 
 load_dotenv(find_dotenv())
 bot = Bot(token=os.getenv("TOKEN"))
 dp = Dispatcher()
+dp.include_router(sub_dp)
 
 
 
 @dp.callback_query(StateFilter(None), lambda c: c.data and c.data.startswith('btn_1_'))
 async def get_tel(callback_query: types.CallbackQuery, state: FSMContext):
     index = int(callback_query.data.split("_")[-1])
+    await bot.answer_callback_query(callback_query.id)
     if index == 1:
         await callback_query.message.edit_text(text=callback_query.message.text, reply_markup=keyboard2)
     elif index == 2:
-        await callback_query.message.edit_text(text=callback_query.message.text, reply_markup=None)
+        chat = await bot.get_chat(callback_query.from_user.id)
+        await callback_query.message.edit_text(text=callback_query.message.text + '\nЛида забрал @' + chat.username,
+                                               reply_markup=None)
         await add_user(callback_query.from_user.id, callback_query.message.message_id)
     elif index == 3:
         await callback_query.message.edit_text(text=callback_query.message.text, reply_markup=keyboard1)
-    await bot.answer_callback_query(callback_query.id)
-
-
 
 
 async def main():
@@ -44,8 +45,8 @@ async def main():
     await auth()
     await create_con_pol()
     # scheduler.add_job(algorithm, args=[bot], trigger=IntervalTrigger(seconds=2))
-    scheduler.add_job(alarm, args=[bot], trigger=IntervalTrigger(seconds=2))
-    await bot.send_message(Admin.id_chat_users, 'dffd', reply_markup=keyboard1)
+    scheduler.add_job(algorithm, args=[bot], trigger=CronTrigger(hour=11, minute=37, timezone='Europe/Moscow'))
+    scheduler.add_job(alarm, args=[bot], trigger=CronTrigger(hour=10, minute=0, timezone='Europe/Moscow'))
     scheduler.start()
     await dp.start_polling(bot)
 

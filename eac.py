@@ -17,11 +17,8 @@ async def eac():
         await page.wait_for_selector('label.params-text', timeout=10000)
         buttons = await page.query_selector_all('label.params-text')
         await buttons[1].click()
-        await page.wait_for_selector('span.cat-text.cat-text_small.cat-text_separator.d-inline-block.pseudo-a',
-                                     timeout=10000)
-        buttons = await page.query_selector_all(
-            'span.cat-text.cat-text_small.cat-text_separator.d-inline-block.pseudo-a')
-        await buttons[6].click()
+        await page.click('input#contractPriceFrom')
+        await page.fill('input#contractPriceFrom', '100000000')
         await page.wait_for_selector('#btn-floating button.btn.btn-primary', timeout=10000)
         button = await page.query_selector('#btn-floating button.btn.btn-primary')
         await button.click()
@@ -35,7 +32,7 @@ async def eac():
 
 
         await page.wait_for_selector('.registry-entry__header-mid__number a', timeout=10000)
-        for j in range(1):
+        for j in range(10):
             await page.wait_for_selector('.registry-entry__header-mid__number a', timeout=10000)
             links = await page.query_selector_all('.registry-entry__header-mid__number a')
             price = await page.query_selector_all('.price-block__value')
@@ -90,7 +87,6 @@ async def eac():
                 except Exception as e:
                     print(e)
             await page.click('a.paginator-button-next')
-        await asyncio.sleep(10)
     await browser.close()
     return inn
 
