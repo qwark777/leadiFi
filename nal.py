@@ -6,7 +6,7 @@ if not os.path.exists(download_dir):
     os.makedirs(download_dir)
 
 
-async def process_inn(inn: int) -> bool:
+async def process_inn(inn: str) -> bool:
     flag = True
     async with async_playwright() as p:
         browser = await p.firefox.launch(headless=False)
@@ -14,7 +14,7 @@ async def process_inn(inn: int) -> bool:
         page = await context.new_page()
         try:
             await page.goto('https://egrul.nalog.ru/')
-            await page.fill('input#query', str(inn))
+            await page.fill('input#query', inn)
             await page.click('#btnSearch')
             await page.wait_for_selector('.op-excerpt', timeout=10000)
             await page.click('.op-excerpt')

@@ -20,8 +20,10 @@ async def continue_registration_calling(callback_query: types.CallbackQuery):
     index = int(callback_query.data.split("_")[-1])
     if index == 1:
         await process_user(callback_query.message.text.split('\n')[0])
+        await bot.delete_message(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id)
     elif index == 2:
         del inn[callback_query.message.text.split('\n')[0]]
+        await bot.delete_message(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id)
 
 async def algorithm(bt: Bot):
     global bot
@@ -35,9 +37,9 @@ async def check_names():
         await bot.send_message(Admin.id_ivan_id, f'{i}\n{inn[i]['name']}\n{inn[i]['cost']}', reply_markup=keyboard3)
 
 async def process_user(i:str):
-    if not await process_inn(int(i)):
+    if not await process_inn(i):
         await asyncio.sleep(60)
-        await process_inn(int(i))
+        await process_inn(i)
     if not await process_inn(inn[i]['inn_owner']):
         await asyncio.sleep(60)
         await process_inn(inn[i]['inn_owner'])
@@ -46,7 +48,7 @@ async def process_user(i:str):
     else:
         print(f'Lost file{i}')
     await sem.acquire()
-    await get_users_data(inn[i], sem, i, bot) # надо добавить семафоры или переделать get_users_data под обработку одного юзера
+    await get_users_data(inn[i], sem, i, bot)
 
 
 

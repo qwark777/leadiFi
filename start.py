@@ -1,18 +1,16 @@
 import asyncio
 import os
 
-import aiomysql
-from aiogram import Bot, Dispatcher, types, F
+from aiogram import Bot, Dispatcher, types
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-from apscheduler.triggers.interval import IntervalTrigger
 from dotenv import load_dotenv, find_dotenv
 
 from database import create_con_pol, add_user, alarm
 from info import Admin, keyboard2, keyboard1
-from main import algorithm,  sub_dp
+from main import algorithm, sub_dp
 from tg import auth
 
 load_dotenv(find_dotenv())
@@ -30,8 +28,10 @@ async def get_tel(callback_query: types.CallbackQuery, state: FSMContext):
         await callback_query.message.edit_text(text=callback_query.message.text, reply_markup=keyboard2)
     elif index == 2:
         chat = await bot.get_chat(callback_query.from_user.id)
-        await callback_query.message.edit_text(text=callback_query.message.text + '\nЛида забрал @' + chat.username,
-                                               reply_markup=None)
+        try:
+            await callback_query.message.edit_text(text=callback_query.message.text + '\nЛида забрал @' + chat.username, reply_markup=None)
+        except:
+            await callback_query.message.edit_text(text=callback_query.message.text + '\nЛида забрал @' + 'человек без username', reply_markup=None)
         await add_user(callback_query.from_user.id, callback_query.message.message_id)
     elif index == 3:
         await callback_query.message.edit_text(text=callback_query.message.text, reply_markup=keyboard1)
@@ -44,8 +44,7 @@ async def main():
     scheduler = AsyncIOScheduler()
     await auth()
     await create_con_pol()
-    # scheduler.add_job(algorithm, args=[bot], trigger=IntervalTrigger(seconds=2))
-    scheduler.add_job(algorithm, args=[bot], trigger=CronTrigger(hour=11, minute=37, timezone='Europe/Moscow'))
+    scheduler.add_job(algorithm, args=[bot], trigger=CronTrigger(hour=13, minute=58, timezone='Europe/Moscow'))
     scheduler.add_job(alarm, args=[bot], trigger=CronTrigger(hour=10, minute=0, timezone='Europe/Moscow'))
     scheduler.start()
     await dp.start_polling(bot)

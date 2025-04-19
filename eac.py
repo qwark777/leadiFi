@@ -32,13 +32,11 @@ async def eac():
 
 
         await page.wait_for_selector('.registry-entry__header-mid__number a', timeout=10000)
-        for j in range(10):
+        for j in range(1):
             await page.wait_for_selector('.registry-entry__header-mid__number a', timeout=10000)
             links = await page.query_selector_all('.registry-entry__header-mid__number a')
             price = await page.query_selector_all('.price-block__value')
             for i, link in enumerate(links):
-                if i == 1:
-                    break
                 try:
                     cost = price[i]
                     linki = await link.get_attribute('href')
