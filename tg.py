@@ -145,7 +145,7 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot):
     semaphore.release()
     global counter
     stri = pattern_for_group
-
+    counter+=1
     await bt.send_message(Admin.id_chat_users,
                            stri.format(i=counter, link=inn['link'], name=inn['name'], cost=inn['cost'],
                                        date=inn['date'], inn_owner=inn['inn_owner'],
