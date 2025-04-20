@@ -38,8 +38,8 @@ async def get_tel(callback_query: types.CallbackQuery, state: FSMContext):
 
 
 async def main():
-    # dp.startup.register(start_message)
-    # dp.shutdown.register(end_message)
+    dp.startup.register(start_message)
+    dp.shutdown.register(end_message)
     await bot.delete_webhook(drop_pending_updates=True)
     scheduler = AsyncIOScheduler()
     await auth()

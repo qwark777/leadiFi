@@ -23,7 +23,7 @@ async def add_user(id_user: int, id_message:int) -> bool:
         return True
 
 async def alarm(bot: Bot):
-    string  = f'SELECT * FROM users WHERE CURDATE() >= DATE_ADD(data, INTERVAL 0 day)'
+    string  = f'SELECT * FROM users WHERE CURDATE() >= DATE_ADD(data, INTERVAL 7 day)'
     try:
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
