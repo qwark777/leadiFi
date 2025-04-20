@@ -43,7 +43,7 @@ async def process_user(i:str):
     if not await process_inn(inn[i]['inn_owner']):
         await asyncio.sleep(60)
         await process_inn(inn[i]['inn_owner'])
-    if await pdf_parcer1(fr"C:\sovk\{i}.pdf", inn[i]) and await pdf_parcer2(fr"C:\sovk\{inn[i]['inn_owner']}.pdf", inn[i]):
+    if await pdf_parcer1(fr"sovk/{i}.pdf", inn[i]) and await pdf_parcer2(fr"sovk/{inn[i]['inn_owner']}.pdf", inn[i]):
         pass
     else:
         print(f'Lost file{i}')

@@ -1,7 +1,7 @@
 import os
 from playwright.async_api import async_playwright
 
-download_dir = os.path.join(os.getcwd(), r"C:\sovk")
+download_dir = os.path.join(os.getcwd(), r"sovk")
 if not os.path.exists(download_dir):
     os.makedirs(download_dir)
 
