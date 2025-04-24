@@ -8,12 +8,22 @@ from collections import defaultdict
 
 async def pdf_parcer1(pdf_path: str, answer: defaultdict) -> bool:
     module = 0
+    name = ''
     try:
         with pdfplumber.open(pdf_path) as pdf:
             for page in pdf.pages:
                 text = page.extract_text()
                 lines = text.split('\n')
                 for line in lines:
+                    if line == 'Настоящая выписка содержит сведения о юридическом лице':
+                        module = 3
+                        continue
+                    if line == 'полное наименование юридического лица':
+                        module = 0
+                        answer['NAME1'] = name
+                        continue
+                    if module == 3:
+                        name += line + ' '
                     if line == 'Сведения о лице, имеющем право без доверенности действовать от имени юридического':
                         module = 1
                     if line == 'Сведения об участниках / учредителях юридического лица':
@@ -41,10 +51,20 @@ async def pdf_parcer2(pdf_path: str, answer: defaultdict) -> bool:
     module = 0
     try:
         with pdfplumber.open(pdf_path) as pdf:
+            name = ''
             for page in pdf.pages:
                 text = page.extract_text()
                 lines = text.split('\n')
                 for line in lines:
+                    if line == 'Настоящая выписка содержит сведения о юридическом лице':
+                        module = 3
+                        continue
+                    if line == 'полное наименование юридического лица':
+                        module = 0
+                        answer['NAME1'] = name
+                        continue
+                    if module == 3:
+                        name += line + ' '
                     if line == 'Сведения о лице, имеющем право без доверенности действовать от имени юридического':
                         module = 1
                     if line == 'Сведения об участниках / учредителях юридического лица':

@@ -37,14 +37,16 @@ async def check_names():
         await bot.send_message(Admin.id_ivan_id, f'{i}\n{inn[i]['name']}\n{inn[i]['cost']}', reply_markup=keyboard3)
 
 async def process_user(i:str):
-    if not await process_inn(i):
-        await asyncio.sleep(60)
-        await process_inn(i)
-    if not await process_inn(inn[i]['inn_owner']):
-        await asyncio.sleep(60)
-        await process_inn(inn[i]['inn_owner'])
-    if await pdf_parcer1(fr"sovk/{i}.pdf", inn[i]) and await pdf_parcer2(fr"sovk/{inn[i]['inn_owner']}.pdf", inn[i]):
-        pass
+    if i != '-':
+        if not await process_inn(i):
+            await asyncio.sleep(60)
+            await process_inn(i)
+        await pdf_parcer1(fr"sovk/{i}.pdf", inn[i])
+    # if inn[i]['inn_owner'] != '-':
+    #     if not await process_inn(inn[i]['inn_owner']):
+    #         await asyncio.sleep(60)
+    #         await process_inn(inn[i]['inn_owner'])
+    #     await pdf_parcer2(fr"sovk/{inn[i]['inn_owner']}.pdf", inn[i])
     else:
         print(f'Lost file{i}')
     await sem.acquire()

@@ -1,14 +1,15 @@
 import asyncio
 import os
+from pydoc import apropos
 
 from aiogram import Bot, Dispatcher, types
-from aiogram.filters import StateFilter
+from aiogram.filters import StateFilter, Command
 from aiogram.fsm.context import FSMContext
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from dotenv import load_dotenv, find_dotenv
 
-from database import create_con_pol, add_user, alarm
+from database import create_con_pol, add_user, alarm, export_mysql_to_excel
 from info import Admin, keyboard2, keyboard1
 from main import algorithm, sub_dp
 from tg import auth
@@ -37,14 +38,21 @@ async def get_tel(callback_query: types.CallbackQuery, state: FSMContext):
         await callback_query.message.edit_text(text=callback_query.message.text, reply_markup=keyboard1)
 
 
+@dp.message(StateFilter(None), Command("data"))
+async def execl(message: types.Message, state: FSMContext):
+    if await export_mysql_to_excel():
+        await bot.send_document(Admin.test_chat, types.FSInputFile(path="data.xlsx"))
+    else:
+        await bot.send_message(Admin.test_chat, 'Файл утерялся @qwark666')
+
 async def main():
-    dp.startup.register(start_message)
-    dp.shutdown.register(end_message)
+    # dp.startup.register(start_message)
+    # dp.shutdown.register(end_message)
     await bot.delete_webhook(drop_pending_updates=True)
     scheduler = AsyncIOScheduler()
     await auth()
     await create_con_pol()
-    scheduler.add_job(algorithm, args=[bot], trigger=CronTrigger(hour=13, minute=58, timezone='Europe/Moscow'))
+    scheduler.add_job(algorithm, args=[bot], trigger=CronTrigger(hour=23, minute=20, timezone='Europe/Moscow'))
     scheduler.add_job(alarm, args=[bot], trigger=CronTrigger(hour=10, minute=0, timezone='Europe/Moscow'))
     scheduler.start()
     await dp.start_polling(bot)

@@ -9,8 +9,8 @@ from dotenv import load_dotenv, find_dotenv
 from telethon import events
 from telethon.sync import TelegramClient
 
-from info import pattern_for_group, Admin, keyboard1
-
+from database import insert_data
+from info import Admin, keyboard1
 load_dotenv(find_dotenv())
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
@@ -78,7 +78,8 @@ async def extract_name_and_phone(text:str, sm:asyncio.Semaphore) -> None:
         name = '-'
     if not phone_match:
         phone_match = '-'
-    if name or phone_match:
+
+    if name != '-' or phone_match != '-':
         if flag == 1:
             inn['ИНН_DIR2_contacts'] = name, phone_match
         elif flag == 2:
@@ -98,7 +99,7 @@ async def extract_name_and_phone(text:str, sm:asyncio.Semaphore) -> None:
     sm.release()
     return
 
-counter = 0
+counter = 14
 
 async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot):
     global sem
@@ -110,21 +111,21 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot):
     semaphore = asyncio.Semaphore(1) #опять ебаные семафоры, я надеялся забыть это
 
 
-    await semaphore.acquire()
-    flag = 1
-    if len(str(inn['ИНН_DIR2'])) == 12:
-        await send_message(str(inn['ИНН_DIR2']))
-    else:
-        semaphore.release()
-
-
-    for j in inn['ИНН_OWN2']:
-        await semaphore.acquire()
-        flag = 2
-        if len(str(j)) == 12:
-            await send_message(str(j))
-        else:
-            semaphore.release()
+    # await semaphore.acquire()
+    # flag = 1
+    # if len(str(inn['ИНН_DIR2'])) == 12:
+    #     await send_message(str(inn['ИНН_DIR2']))
+    # else:
+    #     semaphore.release()
+    #
+    #
+    # for j in inn['ИНН_OWN2']:
+    #     await semaphore.acquire()
+    #     flag = 2
+    #     if len(str(j)) == 12:
+    #         await send_message(str(j))
+    #     else:
+    #         semaphore.release()
 
     await semaphore.acquire()
     flag = 3
@@ -144,19 +145,25 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot):
     await semaphore.acquire()
     semaphore.release()
     global counter
-    stri = pattern_for_group
-    counter+=1
-    await bt.send_message(Admin.id_chat_users,
-                           stri.format(i=counter, link=inn['link'], name=inn['name'], cost=inn['cost'],
-                                       date=inn['date'], inn_owner=inn['inn_owner'],
-                                       i_dir2=inn['ИНН_DIR2'], i_own2=', '.join(inn['ИНН_OWN2']),
-                                       i_con_dir2=inn['ИНН_DIR2_contacts'][0] +  str(inn['ИНН_DIR2_contacts'][1]),
-                                       i_con_own2= '| '.join(list(inn['ИНН_OWN2_contacts'])),
-                                       inn_slave=i, i_dir1=inn['ИНН_DIR1'], i_own1=', '.join(inn['ИНН_OWN1']),
-                                       cont_from_page=inn['cont_from_page'],
-                                       i_con_dir1=inn['ИНН_DIR1_contacts'][0]  + str(inn['ИНН_DIR1_contacts'][1]),
-                                       i_con_own1= ' | '.join(list(inn['ИНН_OWN1_contacts']))), parse_mode="HTML",
-                           reply_markup=keyboard1)
+    counter += 1
+    await insert_data(inn, i)
+    stri = f'''<b>❗Найден новый lead №{counter}❗</b>
+<b>C сайта ЕАС/контракты</b>
+<a href="{inn['link']}">Ссылка на контракт </a>
+<b>Объект закупки: {inn['name']}</b>
+<b>Стоимость контракта {inn['cost']}</b>
+<b>Дата контракта {inn['date']}</b>
+<b>-------------------------------</b>
+<b>Исполнитель</b>
+<b>Название: {inn['NAME1']}</b>
+<b>ИНН <code>{i}</code></b>
+<b>ИНН директора <code>{inn['ИНН_DIR1']}</code></b>
+<b>ИНН учредителей <code>{', '.join(inn['ИНН_OWN1'])}</code></b>
+<b>Контакты с сайта {inn['cont_from_page']}</b>
+<b>Контакты директора {inn['ИНН_DIR1_contacts'][0]}</b>
+<b>Контакты учредителей {inn['ИНН_OWN1_contacts'][0]}</b>
+<b>-------------------------------</b>'''
+    await bt.send_message(Admin.test_chat, stri, parse_mode="HTML", reply_markup=keyboard1)
     sem.release()
 
 
