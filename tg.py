@@ -110,7 +110,6 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot):
     global semaphore
     semaphore = asyncio.Semaphore(1) #опять ебаные семафоры, я надеялся забыть это
 
-
     # await semaphore.acquire()
     # flag = 1
     # if len(str(inn['ИНН_DIR2'])) == 12:
@@ -142,6 +141,7 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot):
         else:
             semaphore.release()
 
+
     await semaphore.acquire()
     semaphore.release()
     global counter
@@ -160,8 +160,8 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot):
 <b>ИНН директора <code>{inn['ИНН_DIR1']}</code></b>
 <b>ИНН учредителей <code>{', '.join(inn['ИНН_OWN1'])}</code></b>
 <b>Контакты с сайта {inn['cont_from_page']}</b>
-<b>Контакты директора {inn['ИНН_DIR1_contacts'][0]}</b>
-<b>Контакты учредителей {inn['ИНН_OWN1_contacts'][0]}</b>
+<b>Контакты директора {inn['ИНН_DIR1_contacts']}</b>
+<b>Контакты учредителей {', '.join(inn['ИНН_OWN1_contacts'])}</b>
 <b>-------------------------------</b>'''
     await bt.send_message(Admin.test_chat, stri, parse_mode="HTML", reply_markup=keyboard1)
     sem.release()

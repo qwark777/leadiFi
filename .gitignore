@@ -175,3 +175,4 @@ cython_debug/
 .idea/misc.xml
 .idea/leadiFi.iml
 .idea/workspace.xml
+session_name.session

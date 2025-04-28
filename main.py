@@ -34,7 +34,8 @@ async def algorithm(bt: Bot):
 
 async def check_names():
     for i in inn.keys():
-        await bot.send_message(Admin.id_ivan_id, f'{i}\n{inn[i]['name']}\n{inn[i]['cost']}', reply_markup=keyboard3)
+        await bot.send_message(Admin.id_ivan_id, "Бот отработал корректно смс отправлено")
+        await bot.send_message(Admin.id_alex_chat, f'{i}\n{inn[i]['name']}\n{inn[i]['cost']}', reply_markup=keyboard3)
 
 async def process_user(i:str):
     if i != '-':
