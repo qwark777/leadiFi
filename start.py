@@ -2,7 +2,7 @@ import asyncio
 import os
 from pydoc import apropos
 
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import StateFilter, Command
 from aiogram.fsm.context import FSMContext
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -10,9 +10,9 @@ from apscheduler.triggers.cron import CronTrigger
 from dotenv import load_dotenv, find_dotenv
 
 from database import create_con_pol, add_user, alarm, export_mysql_to_excel
-from info import Admin, keyboard2, keyboard1
-from main import algorithm, sub_dp
-from tg import auth
+from info import Admin, keyboard2, keyboard1, find_keyboard, User
+from main import algorithm, sub_dp, process_user, create_main
+from tg import auth, get_users_data, get_one_user
 
 load_dotenv(find_dotenv())
 bot = Bot(token=os.getenv("TOKEN"))
@@ -41,9 +41,34 @@ async def get_tel(callback_query: types.CallbackQuery, state: FSMContext):
 @dp.message(StateFilter(None), Command("data"))
 async def execl(message: types.Message, state: FSMContext):
     if await export_mysql_to_excel():
-        await bot.send_document(Admin.test_chat, types.FSInputFile(path="data.xlsx"))
+        await bot.send_document(Admin.id_chat_users, types.FSInputFile(path="data.xlsx"))
     else:
-        await bot.send_message(Admin.test_chat, 'Файл утерялся @qwark666')
+        await bot.send_message(Admin.id_chat_users, 'Файл утерялся @qwark666')
+
+@dp.message(StateFilter(None), Command("find"))
+async def find(message: types.Message, state: FSMContext):
+    await bot.delete_message(message.chat.id, message.message_id)
+    await bot.send_message(Admin.test_chat, "Отправьте ИНН")
+    await state.set_state(User.find)
+
+@dp.message(User.find, F.text)
+async def find(message: types.Message, state: FSMContext):
+    try:
+        int(message.text)
+    except ValueError:
+        await message.answer('Неправильный формат')
+    if len(message.text) == 10:
+        await process_user(message.text, 2)
+        await state.clear()
+    elif len(message.text) == 12:
+        await get_one_user(message.text, bot)
+
+        await state.clear()
+    else:
+        await message.answer('Неправильный формат')
+        await state.clear()
+
+
 
 async def main():
     # dp.startup.register(start_message)
@@ -52,7 +77,8 @@ async def main():
     scheduler = AsyncIOScheduler()
     await auth()
     await create_con_pol()
-    scheduler.add_job(algorithm, args=[bot], trigger=CronTrigger(hour=23, minute=20, timezone='Europe/Moscow'))
+    await create_main(bot)
+    scheduler.add_job(algorithm, args=[bot], trigger=CronTrigger(hour=10, minute=0, timezone='Europe/Moscow'))
     scheduler.add_job(alarm, args=[bot], trigger=CronTrigger(hour=10, minute=0, timezone='Europe/Moscow'))
     scheduler.start()
     await dp.start_polling(bot)

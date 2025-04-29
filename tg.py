@@ -22,7 +22,6 @@ global inn
 global flag # 1 inn_dir2  2 inn_own2 3 inn_dir1 4 inn_own1
 global semaphore
 global bot
-sem = None
 
 async def send_message(text:str):
     if text == '-':
@@ -32,6 +31,8 @@ async def send_message(text:str):
 
 
 async def auth():
+    global semaphore
+    semaphore = asyncio.Semaphore(1)  # опять ебаные семафоры, я надеялся забыть это
     await client.connect()
     if not await client.is_user_authorized():
         try:
@@ -49,13 +50,13 @@ async def auth():
 @client.on(events.MessageEdited())
 async def handler(event):
     await asyncio.sleep(4)
-    await extract_name_and_phone(event.message.message, semaphore)
+    await extract_name_and_phone(event.message.message)
 
 
 
 
 
-async def extract_name_and_phone(text:str, sm:asyncio.Semaphore) -> None:
+async def extract_name_and_phone(text:str) -> None:
     name_pattern = r"ФИО: ([А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+)\n"
     name_match = re.search(name_pattern, text)
     name = name_match.group(1) if name_match else ''
@@ -94,21 +95,23 @@ async def extract_name_and_phone(text:str, sm:asyncio.Semaphore) -> None:
                 inn['ИНН_OWN1_contacts'] = [f'{name} {phone_match}', ]
             else:
                 inn['ИНН_OWN1_contacts'].append(f'{name} {phone_match}')
+        elif flag == 99:
+            inn['solo'] = [f'{name} {phone_match}']
         else:
             pass
-    sm.release()
+    global semaphore
+    semaphore.release()
     return
 
 counter = 14
 
-async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot):
-    global sem
-    sem = sm
+async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot, flg :int = 1):
     global inn
     global flag
     inn = a
     global semaphore
-    semaphore = asyncio.Semaphore(1) #опять ебаные семафоры, я надеялся забыть это
+    if not semaphore:
+        semaphore = asyncio.Semaphore(1) #опять ебаные семафоры, я надеялся забыть это
 
     # await semaphore.acquire()
     # flag = 1
@@ -147,7 +150,8 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot):
     global counter
     counter += 1
     await insert_data(inn, i)
-    stri = f'''<b>❗Найден новый lead №{counter}❗</b>
+    if flg == 1:
+        stri = f'''<b>❗Найден новый lead №{counter}❗</b>
 <b>C сайта ЕАС/контракты</b>
 <a href="{inn['link']}">Ссылка на контракт </a>
 <b>Объект закупки: {inn['name']}</b>
@@ -163,7 +167,30 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot):
 <b>Контакты директора {inn['ИНН_DIR1_contacts']}</b>
 <b>Контакты учредителей {', '.join(inn['ИНН_OWN1_contacts'])}</b>
 <b>-------------------------------</b>'''
-    await bt.send_message(Admin.test_chat, stri, parse_mode="HTML", reply_markup=keyboard1)
-    sem.release()
+    else:
+        stri = f'''
+<b>Название: {inn['NAME1']}</b>
+<b>ИНН <code>{i}</code></b>
+<b>ИНН директора <code>{inn['ИНН_DIR1']}</code></b>
+<b>ИНН учредителей <code>{', '.join(inn['ИНН_OWN1'])}</code></b>
+<b>Контакты директора {inn['ИНН_DIR1_contacts']}</b>
+<b>Контакты учредителей {', '.join(inn['ИНН_OWN1_contacts'])}</b>
+<b>-------------------------------</b>'''
+    await bt.send_message(Admin.id_chat_users, stri, parse_mode="HTML", reply_markup=keyboard1)
+    sm.release()
 
+
+async def get_one_user(i:str, bt: Bot):
+    global semaphore
+    if not semaphore:
+        semaphore = asyncio.Semaphore(1)  # опять ебаные семафоры, я надеялся забыть это
+    global inn
+    global flag
+    flag = 99
+    inn = defaultdict(lambda : '-')
+    await semaphore.acquire()
+    await send_message(i)
+    await semaphore.acquire()
+    semaphore.release()
+    await bt.send_message(Admin.id_chat_users, ' '.join(inn['solo']), parse_mode="HTML")
 

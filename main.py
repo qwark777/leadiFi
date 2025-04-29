@@ -1,7 +1,9 @@
 import asyncio
+from collections import defaultdict
 
 from aiogram import Bot
 from aiogram import Router, types
+from numpy.random import default_rng
 
 from eac import eac
 from info import Admin, keyboard3
@@ -14,6 +16,12 @@ global bot
 
 sub_dp = Router()
 sem = asyncio.Semaphore(1)
+
+async def create_main(bt: Bot):
+    global bot
+    bot = bt
+    global inn
+    inn = defaultdict(lambda : defaultdict(lambda :'-'))
 @sub_dp.callback_query(lambda c: c.data and c.data.startswith('btn_2_'))
 async def continue_registration_calling(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
@@ -26,8 +34,6 @@ async def continue_registration_calling(callback_query: types.CallbackQuery):
         await bot.delete_message(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id)
 
 async def algorithm(bt: Bot):
-    global bot
-    bot = bt
     global inn
     inn = await eac()
     await  check_names()
@@ -37,7 +43,7 @@ async def check_names():
         await bot.send_message(Admin.id_ivan_id, "Бот отработал корректно смс отправлено")
         await bot.send_message(Admin.id_alex_chat, f'{i}\n{inn[i]['name']}\n{inn[i]['cost']}', reply_markup=keyboard3)
 
-async def process_user(i:str):
+async def process_user(i:str, flg: int = 1):
     if i != '-':
         if not await process_inn(i):
             await asyncio.sleep(60)
@@ -51,8 +57,7 @@ async def process_user(i:str):
     else:
         print(f'Lost file{i}')
     await sem.acquire()
-    await get_users_data(inn[i], sem, i, bot)
-
+    await get_users_data(inn[i], sem, i, bot, flg)
 
 
 
