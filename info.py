@@ -10,7 +10,8 @@ class Admin:
     id_alex_chat = 5201640740
     test_chat = -1002377574530
 
-
+users = [753407063, 5201640740, 1188056958]
+admins = [5201640740, 1188056958]
 
 class User(StatesGroup):
     find = State()

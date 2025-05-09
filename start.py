@@ -1,24 +1,22 @@
 import asyncio
 import os
-from pydoc import apropos
-
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import StateFilter, Command
 from aiogram.fsm.context import FSMContext
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from dotenv import load_dotenv, find_dotenv
-
-from database import create_con_pol, add_user, alarm, export_mysql_to_excel
+from admins_router import admins_router, create_admins_router
+from database import create_con_pol, alarm, export_mysql_to_excel
 from info import Admin, keyboard2, keyboard1, find_keyboard, User
 from main import algorithm, sub_dp, process_user, create_main
-from tg import auth, get_users_data, get_one_user
+from tg import auth, get_users_data, get_one_user, edit_message
 
 load_dotenv(find_dotenv())
 bot = Bot(token=os.getenv("TOKEN"))
 dp = Dispatcher()
 dp.include_router(sub_dp)
-
+dp.include_router(admins_router)
 
 
 @dp.callback_query(StateFilter(None), lambda c: c.data and c.data.startswith('btn_1_'))
@@ -26,48 +24,11 @@ async def get_tel(callback_query: types.CallbackQuery, state: FSMContext):
     index = int(callback_query.data.split("_")[-1])
     await bot.answer_callback_query(callback_query.id)
     if index == 1:
-        await callback_query.message.edit_text(text=callback_query.message.text, reply_markup=keyboard2)
+        await callback_query.message.edit_text(text=callback_query.message.html_text, reply_markup=keyboard2,  parse_mode="HTML")
     elif index == 2:
-        chat = await bot.get_chat(callback_query.from_user.id)
-        try:
-            await callback_query.message.edit_text(text=callback_query.message.text + '\nЛида забрал @' + chat.username, reply_markup=None)
-        except:
-            await callback_query.message.edit_text(text=callback_query.message.text + '\nЛида забрал @' + 'человек без username', reply_markup=None)
-        await add_user(callback_query.from_user.id, callback_query.message.message_id)
+        await edit_message(callback_query)
     elif index == 3:
-        await callback_query.message.edit_text(text=callback_query.message.text, reply_markup=keyboard1)
-
-
-@dp.message(StateFilter(None), Command("data"))
-async def execl(message: types.Message, state: FSMContext):
-    if await export_mysql_to_excel():
-        await bot.send_document(Admin.id_chat_users, types.FSInputFile(path="data.xlsx"))
-    else:
-        await bot.send_message(Admin.id_chat_users, 'Файл утерялся @qwark666')
-
-@dp.message(StateFilter(None), Command("find"))
-async def find(message: types.Message, state: FSMContext):
-    await bot.delete_message(message.chat.id, message.message_id)
-    await bot.send_message(Admin.test_chat, "Отправьте ИНН")
-    await state.set_state(User.find)
-
-@dp.message(User.find, F.text)
-async def find(message: types.Message, state: FSMContext):
-    try:
-        int(message.text)
-    except ValueError:
-        await message.answer('Неправильный формат')
-    if len(message.text) == 10:
-        await process_user(message.text, 2)
-        await state.clear()
-    elif len(message.text) == 12:
-        await get_one_user(message.text, bot)
-
-        await state.clear()
-    else:
-        await message.answer('Неправильный формат')
-        await state.clear()
-
+        await callback_query.message.edit_text(text=callback_query.message.html_text, reply_markup=keyboard1,  parse_mode="HTML")
 
 
 async def main():
@@ -77,8 +38,9 @@ async def main():
     scheduler = AsyncIOScheduler()
     await auth()
     await create_con_pol()
+    await create_admins_router(bot)
     await create_main(bot)
-    scheduler.add_job(algorithm, args=[bot], trigger=CronTrigger(hour=10, minute=0, timezone='Europe/Moscow'))
+    scheduler.add_job(algorithm, trigger=CronTrigger(hour=10, minute=47, timezone='Europe/Moscow'))
     scheduler.add_job(alarm, args=[bot], trigger=CronTrigger(hour=10, minute=0, timezone='Europe/Moscow'))
     scheduler.start()
     await dp.start_polling(bot)
