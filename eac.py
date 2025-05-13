@@ -81,7 +81,6 @@ async def eac():
                     inn[inn_slave]['link'] = prev_link + linki
                     inn[inn_slave]['cost'] = await cost.inner_text()
                     await new_page.close()
-                    return inn
                 except Exception as e:
                     print(e)
             await page.click('a.paginator-button-next')

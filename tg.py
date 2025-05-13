@@ -205,7 +205,7 @@ async def get_one_user(i:str, bt: Bot, chat: int):
     semaphore.release()
     await bt.send_message(chat, ' '.join(data_now_user['solo']), parse_mode="HTML")
 
-async def edit_message(callback_query: types.CallbackQuery):
+async def edit_message(callback_query: types.CallbackQuery, bt: Bot):
     a = callback_query.message.text
     num = 0
     for i in range(a.find('№') + 1, 100):
@@ -231,7 +231,7 @@ async def edit_message(callback_query: types.CallbackQuery):
 <b>Директор:</b>
 <b>ИНН <code>{data_now_user['ИНН_DIR1']}</code></b>
 <b>Имя {data_now_user['ИНН_DIR1_name']}</b>
-<b>Телефон {', '.join(data_now_user['ИНН_DIR1_phone'])}</b>
+<b>Телефон {data_now_user['ИНН_DIR1_phone']}</b>
 <b>Учредители:</b>'''
     for i in range(len(data_now_user['ИНН_OWN1'])):
         stri += f'''<b>ИНН <code>{data_now_user['ИНН_OWN1'][i]}</code></b>
@@ -239,7 +239,7 @@ async def edit_message(callback_query: types.CallbackQuery):
 <b>Телефон {data_now_user['ИНН_OWN1_phone'][i]}</b>'''
 
     stri += '\n<b>-------------------------------</b>'
-    chat = await bot.get_chat(callback_query.from_user.id)
+    chat = await bt.get_chat(callback_query.from_user.id)
     try:
         stri += f'Лида забрал @{chat.username}'
     except:

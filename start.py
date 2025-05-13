@@ -26,7 +26,7 @@ async def get_tel(callback_query: types.CallbackQuery, state: FSMContext):
     if index == 1:
         await callback_query.message.edit_text(text=callback_query.message.html_text, reply_markup=keyboard2,  parse_mode="HTML")
     elif index == 2:
-        await edit_message(callback_query)
+        await edit_message(callback_query, bot)
     elif index == 3:
         await callback_query.message.edit_text(text=callback_query.message.html_text, reply_markup=keyboard1,  parse_mode="HTML")
 
@@ -40,7 +40,7 @@ async def main():
     await create_con_pol()
     await create_admins_router(bot)
     await create_main(bot)
-    scheduler.add_job(algorithm, trigger=CronTrigger(hour=10, minute=47, timezone='Europe/Moscow'))
+    scheduler.add_job(algorithm, trigger=CronTrigger(hour=17, minute=13, timezone='Europe/Moscow'))
     scheduler.add_job(alarm, args=[bot], trigger=CronTrigger(hour=10, minute=0, timezone='Europe/Moscow'))
     scheduler.start()
     await dp.start_polling(bot)
