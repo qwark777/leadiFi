@@ -40,7 +40,7 @@ async def main():
     await create_con_pol()
     await create_admins_router(bot)
     await create_main(bot)
-    scheduler.add_job(algorithm, trigger=CronTrigger(hour=17, minute=13, timezone='Europe/Moscow'))
+    scheduler.add_job(algorithm, trigger=CronTrigger(hour=18, minute=35, timezone='Europe/Moscow'))
     scheduler.add_job(alarm, args=[bot], trigger=CronTrigger(hour=10, minute=0, timezone='Europe/Moscow'))
     scheduler.start()
     await dp.start_polling(bot)

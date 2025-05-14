@@ -149,7 +149,11 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot, 
             await send_message(str(j))
         else:
             semaphore.release()
-
+    a = list(data_now_user['ИНН_OWN1'])
+    data_now_user['ИНН_OWN1'] = []
+    for f in a: # ВСЮ ЭТУ ДИЧЬ ДЕЛИТНУТЬ НАХУЙ КОГДА ДОБАВЛЮ РЕКРСИВНЫЙ ОБХОД КОМПАНИЙ У КОТОРЫХ УЧРЕДЫ - ООО
+        if len(str(f)) == 12:
+            data_now_user['ИНН_OWN1'].append(f)
 
     await semaphore.acquire()
     semaphore.release()
@@ -170,10 +174,9 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot, 
 <b>ИНН <code>{data_now_user['ИНН_DIR1']}</code></b>
 <b>Имя {'Найдено' if data_now_user['ИНН_DIR1_name'] != '-' else 'Не найдено'}</b>
 <b>Телефон {'Найден' if data_now_user['ИНН_DIR1_phone'] != '-'else 'Не найден'}</b>
-<b>Учредители:</b>
-'''
+<b>Учредители:</b>'''
         for i in range(len(data_now_user['ИНН_OWN1'])):
-            stri += f'''<b>ИНН <code>{data_now_user['ИНН_OWN1'][i]}</code></b>
+            stri += f'''<b>\nИНН <code>{data_now_user['ИНН_OWN1'][i]}</code></b>
 <b>Имя {'Найдено' if data_now_user['ИНН_OWN1_name'][i] != '-' else 'Не найдено'}</b>
 <b>Телефон {'Найден' if data_now_user['ИНН_OWN1_phone'][i] != '-' else 'Не найден'}</b>'''
 
@@ -234,14 +237,14 @@ async def edit_message(callback_query: types.CallbackQuery, bt: Bot):
 <b>Телефон {data_now_user['ИНН_DIR1_phone']}</b>
 <b>Учредители:</b>'''
     for i in range(len(data_now_user['ИНН_OWN1'])):
-        stri += f'''<b>ИНН <code>{data_now_user['ИНН_OWN1'][i]}</code></b>
+        stri += f'''<b>\nИНН <code>{data_now_user['ИНН_OWN1'][i]}</code></b>
 <b>Имя {data_now_user['ИНН_OWN1_name'][i]}</b>
 <b>Телефон {data_now_user['ИНН_OWN1_phone'][i]}</b>'''
 
     stri += '\n<b>-------------------------------</b>'
     chat = await bt.get_chat(callback_query.from_user.id)
     try:
-        stri += f'Лида забрал @{chat.username}'
+        stri += f'\nЛида забрал @{chat.username}'
     except:
-        stri += 'Лида забрал @человек_без_юзернейма'
+        stri += '\nЛида забрал @человек_без_юзернейма'
     await callback_query.message.edit_text(stri, parse_mode="HTML")
