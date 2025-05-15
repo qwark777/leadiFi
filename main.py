@@ -34,7 +34,7 @@ async def continue_registration_calling(callback_query: types.CallbackQuery):
         await process_user(callback_query.message.text.split('\n')[1])
         await bot.delete_message(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id)
     elif index == 2:
-        del inn[callback_query.message.text.split('\n')[0]]
+        del inn[callback_query.message.text.split('\n')[1]]
         await bot.delete_message(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id)
 
 async def algorithm():
