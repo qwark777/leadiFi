@@ -3,14 +3,12 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
 class Admin:
-    time_schedule = 5
-    id_chat_bot = -1002406858766
     id_chat_users = -1002261631821
-    id_ivan_id = 1188056958
-    id_alex_chat = 5201640740
-    test_chat = -1002377574530
+    id_chat_ivan = 1188056958
+    id_chat_alex = 5201640740
+    id_chat_test = -1002377574530
 
-users = [753407063, 5201640740, 1188056958]
+users = [753407063, 5201640740, 1188056958, 977805959]
 admins = [5201640740, 1188056958]
 
 class User(StatesGroup):

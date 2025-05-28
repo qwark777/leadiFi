@@ -45,13 +45,13 @@ async def algorithm():
         if await check_user(inn[i]['name']):
             del inn[i]
     flag = await users_transfer(inn)
-    await bot.send_message(Admin.id_ivan_id, "Бот отработал корректно смс отправлено")
+    await bot.send_message(Admin.id_chat_ivan, "Бот отработал корректно смс отправлено")
     await check_names()
 
 async def check_names():
     global inn
     for i in inn.keys():
-        await bot.send_message(Admin.id_ivan_id, f'{inn[i]['counter']}\n{i}\n{inn[i]['name']}\n{inn[i]['cost']}', reply_markup=keyboard3)
+        await bot.send_message(Admin.id_chat_ivan, f'{inn[i]['counter']}\n{i}\n{inn[i]['name']}\n{inn[i]['cost']}', reply_markup=keyboard3)
     inn = defaultdict(lambda: defaultdict(lambda: '-'))
 
 

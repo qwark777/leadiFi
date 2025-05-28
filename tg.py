@@ -42,12 +42,14 @@ async def auth():
             print(e)
     print("✅ Успешный вход! ID:", (await client.get_me()).id)
     global bot
-    bot = await client.get_entity(os.getenv('BOT')) # сюда добавить проверку
+    bot = await client.get_entity(os.getenv('BOT')) # сюда добавить проверку существует ли тг акк глаза бога
 
 
 
 @client.on(events.MessageEdited())
 async def handler(event):
+    if 'Отчет слишком большой' in event.message.message:
+        return
     await asyncio.sleep(4)
     await extract_name_and_phone(event.message.message)
 
@@ -59,7 +61,13 @@ async def extract_name_and_phone(text:str) -> None:
     name_pattern = r"ФИО: ([А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+)\n"
     name_match = re.search(name_pattern, text)
     name = name_match.group(1) if name_match else ''
-    if name is None:
+    if not name:
+        print(1)
+        name_pattern = r'''Лица:\n└ ([А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+)\n'''
+        name_match = re.search(name_pattern, text)
+        name = name_match.group(1) if name_match else ''
+
+    if not name:
         name_pattern = r"Имя: ([А-ЯЁ][а-яё]+)\n"
         name_match = re.search(name_pattern, text)
         firstname = name_match.group(1) if name_match else ''
@@ -79,11 +87,14 @@ async def extract_name_and_phone(text:str) -> None:
         name = '-'
     if not phone_match:
         phone_match = '-'
-
     if name != '-' or phone_match != '-':
         if flag == 1:
-            data_now_user['ИНН_DIR2_name'] = name
-            data_now_user['ИНН_DIR2_phone'] = phone_match
+            if data_now_user['ИНН_DIR2_name'] == '-' and data_now_user['ИНН_DIR2_phone'] == '-':
+                data_now_user['ИНН_DIR2_name'] = [name, ]
+                data_now_user['ИНН_DIR2_phone'] = [phone_match, ]
+            else:
+                data_now_user['ИНН_DIR2_name'].append(name)
+                data_now_user['ИНН_DIR2_phone'].append(phone_match)
         elif flag == 2:
             if data_now_user['ИНН_OWN2_name'] == '-' and data_now_user['ИНН_OWN2_phone'] == '-':
                 data_now_user['ИНН_OWN2_name'] = [name, ]
@@ -92,8 +103,12 @@ async def extract_name_and_phone(text:str) -> None:
                 data_now_user['ИНН_OWN2_name'].append(name)
                 data_now_user['ИНН_OWN2_phone'].append(phone_match)
         elif flag == 3:
-            data_now_user['ИНН_DIR1_name'] = name
-            data_now_user['ИНН_DIR1_phone'] = phone_match
+            if data_now_user['ИНН_DIR1_name'] == '-' and data_now_user['ИНН_DIR1_phone'] == '-':
+                data_now_user['ИНН_DIR1_name'] = [name, ]
+                data_now_user['ИНН_DIR1_phone'] = [phone_match, ]
+            else:
+                data_now_user['ИНН_DIR1_name'].append(name)
+                data_now_user['ИНН_DIR1_phone'].append(phone_match)
         elif flag == 4:
             if data_now_user['ИНН_OWN1_name'] == '-' and data_now_user['ИНН_OWN1_phone'] == '-':
                 data_now_user['ИНН_OWN1_name'] = [name, ]
@@ -135,12 +150,13 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot, 
     #     else:
     #         semaphore.release()
 
-    await semaphore.acquire()
-    flag = 3
-    if len(str(data_now_user['ИНН_DIR1'])) == 12:
-        await send_message(str(data_now_user['ИНН_DIR1']))
-    else:
-        semaphore.release()
+    for j in data_now_user['ИНН_DIR1']:
+        await semaphore.acquire()
+        flag = 3
+        if len(str(j)) == 12:
+            await send_message(str(j))
+        else:
+            semaphore.release()
 
     for j in data_now_user['ИНН_OWN1']:
         await semaphore.acquire()
@@ -154,6 +170,13 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot, 
     for f in a: # ВСЮ ЭТУ ДИЧЬ ДЕЛИТНУТЬ НАХУЙ КОГДА ДОБАВЛЮ РЕКРСИВНЫЙ ОБХОД КОМПАНИЙ У КОТОРЫХ УЧРЕДЫ - ООО
         if len(str(f)) == 12:
             data_now_user['ИНН_OWN1'].append(f)
+
+    a = list(data_now_user['ИНН_DIR1'])
+    data_now_user['ИНН_DIR1'] = []
+    for f in a:
+        if len(str(f)) == 12:
+            data_now_user['ИНН_DIR1'].append(f)
+
 
     await semaphore.acquire()
     semaphore.release()
@@ -170,11 +193,12 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot, 
 <b>Название: {data_now_user['NAME1']}</b>
 <b>ИНН <code>{i}</code></b>
 <b>Контакты с сайта {data_now_user['cont_from_page']}</b>
-<b>Директор:</b>
-<b>ИНН <code>{data_now_user['ИНН_DIR1']}</code></b>
-<b>Имя {'Найдено' if data_now_user['ИНН_DIR1_name'] != '-' else 'Не найдено'}</b>
-<b>Телефон {'Найден' if data_now_user['ИНН_DIR1_phone'] != '-'else 'Не найден'}</b>
-<b>Учредители:</b>'''
+<b>Директора:</b>'''
+        for i in range(len(data_now_user['ИНН_DIR1'])):
+            stri += f'''<b>\nИНН <code>{data_now_user['ИНН_DIR1'][i]}</code></b>
+<b>Имя {'Найдено' if data_now_user['ИНН_DIR1_name'][i] != '-' else 'Не найдено'}</b>
+<b>Телефон {'Найден' if data_now_user['ИНН_DIR1_phone'][i] != '-' else 'Не найден'}</b>'''
+        stri +='''\n<b>Учредители:</b>'''
         for i in range(len(data_now_user['ИНН_OWN1'])):
             stri += f'''<b>\nИНН <code>{data_now_user['ИНН_OWN1'][i]}</code></b>
 <b>Имя {'Найдено' if data_now_user['ИНН_OWN1_name'][i] != '-' else 'Не найдено'}</b>
@@ -190,7 +214,7 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot, 
 <b>Контакты директора {data_now_user['ИНН_DIR1_contacts']}</b>
 <b>Контакты учредителей {', '.join(data_now_user['ИНН_OWN1_contacts'])}</b>
 <b>-------------------------------</b>'''
-    await bt.send_message(Admin.test_chat, stri, parse_mode="HTML", reply_markup=keyboard1)
+    await bt.send_message(Admin.id_chat_test, stri, parse_mode="HTML", reply_markup=keyboard1)
     sm.release()
 
 
@@ -220,6 +244,7 @@ async def edit_message(callback_query: types.CallbackQuery, bt: Bot):
     data_now_user = defaultdict(lambda : '-')
     await select_users2(num, data_now_user) # добавить выдачу данных из бд
     await get_user(num, callback_query)
+    print(data_now_user)
     stri = f'''<b>❗Найден новый lead №{data_now_user['counter']}❗</b>
 <b>C сайта ЕАС/контракты</b>
 <a href="{data_now_user['link']}">Ссылка на контракт </a>
@@ -231,11 +256,12 @@ async def edit_message(callback_query: types.CallbackQuery, bt: Bot):
 <b>Название: {data_now_user['NAME1']}</b>
 <b>ИНН <code>{data_now_user['ИНН_slave1']}</code></b>
 <b>Контакты с сайта {data_now_user['cont_from_page']}</b>
-<b>Директор:</b>
-<b>ИНН <code>{data_now_user['ИНН_DIR1']}</code></b>
-<b>Имя {data_now_user['ИНН_DIR1_name']}</b>
-<b>Телефон {data_now_user['ИНН_DIR1_phone']}</b>
-<b>Учредители:</b>'''
+<b>Директор:</b>'''
+    for i in range(len(data_now_user['ИНН_DIR1'])):
+        stri += f'''<b>\nИНН <code>{data_now_user['ИНН_DIR1'][i]}</code></b>
+<b>Имя {data_now_user['ИНН_DIR1_name'][i]}</b>
+<b>Телефон {data_now_user['ИНН_DIR1_phone'][i]}</b>'''
+    stri += '''\n<b>Учредители:</b>'''
     for i in range(len(data_now_user['ИНН_OWN1'])):
         stri += f'''<b>\nИНН <code>{data_now_user['ИНН_OWN1'][i]}</code></b>
 <b>Имя {data_now_user['ИНН_OWN1_name'][i]}</b>
