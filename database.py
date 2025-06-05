@@ -70,7 +70,7 @@ async def insert_data(inn: dict, i: str):
     try:
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                string = f"""UPDATE users set id_user = 0, id_message = 0, link = '{inn['link']}', name = '{inn['name']}', cost = '{inn['cost']}', date = '{inn['date']}' , name1 = '{inn['NAME1']}', inn1 = '{i}', inn_dir1 = '{', '.join(inn['ИНН_DIR1'])}', inn_own1 = '{', '.join(inn['ИНН_OWN1'])}', contact_site = '{inn['cont_from_page']}', name_dir1 = '{'|'.join(inn['ИНН_DIR1_name'])}', phone_dir1 = '{'|'.join(inn['ИНН_DIR1_phone'])}', name_own1 = '{'|'.join(inn['ИНН_OWN1_name'])}', phone_own1 = '{'|'.join(inn['ИНН_OWN1_phone'])}' where inn1 = {i}"""
+                string = f"""INSERT INTO users set id_user = 0, id_message = 0, link = '{inn['link']}', name = '{inn['name']}', cost = '{inn['cost']}', date = '{inn['date']}' , name1 = '{inn['NAME1']}', inn1 = '{i}', inn_dir1 = '{', '.join(inn['ИНН_DIR1'])}', inn_own1 = '{', '.join(inn['ИНН_OWN1'])}', contact_site = '{inn['cont_from_page']}', name_dir1 = '{'|'.join(inn['ИНН_DIR1_name'])}', phone_dir1 = '{'|'.join(inn['ИНН_DIR1_phone'])}', name_own1 = '{'|'.join(inn['ИНН_OWN1_name'])}', phone_own1 = '{'|'.join(inn['ИНН_OWN1_phone'])}', id_eac = '{inn['counter']}'"""
                 await cursor.execute(string)
                 await cursor.fetchall()
                 await conn.commit()
@@ -86,7 +86,7 @@ async def users_transfer(inn:defaultdict):
         try:
             async with pool.acquire() as conn:
                 async with conn.cursor() as cursor:
-                    string = f"""INSERT INTO users (link, name, cost, date, inn1, contact_site) VALUES ('{inn[i]['link']}', '{inn[i]['name']}', '{inn[i]['cost']}', '{inn[i]['date']}', '{i}', '{inn[i]['cont_from_page']}')"""
+                    string = f"""INSERT INTO eac (link, name, cost, date, inn1, contact_site) VALUES ('{inn[i]['link']}', '{inn[i]['name']}', '{inn[i]['cost']}', '{inn[i]['date']}', '{i}', '{inn[i]['cont_from_page']}')"""
                     await cursor.execute(string)
                     await cursor.fetchall()
                     last_id = cursor.lastrowid
@@ -101,7 +101,7 @@ async def select_users1(id_: str, inn: defaultdict):
     try:
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                string = f"""select link, name, cost, date, inn1, contact_site from users where id = {id_}"""
+                string = f"""select link, name, cost, date, inn1, contact_site from eac where id = {id_}"""
                 await cursor.execute(string)
                 ans = (await cursor.fetchall())[0]
                 inn['link'], inn['name'],  inn['cost'], inn['date'], inn['ИНН_slave1'], inn['cont_from_page'], inn['counter'] = ans[0], ans[1], ans[2], ans[3], ans[4], ans[5], id_
@@ -115,7 +115,7 @@ async def select_users2(id_: str, inn: defaultdict):
     try:
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                string = f"""select link, name, cost, date, name1, inn1, inn_dir1, inn_own1, contact_site, name_dir1, phone_dir1, name_own1, phone_own1 from users where id = {id_}"""
+                string = f"""select link, name, cost, date, name1, inn1, inn_dir1, inn_own1, contact_site, name_dir1, phone_dir1, name_own1, phone_own1 from users where id_eac = {id_}"""
                 await cursor.execute(string)
                 ans = await cursor.fetchall()
                 ans = ans[0]

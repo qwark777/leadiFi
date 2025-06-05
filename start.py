@@ -1,16 +1,18 @@
 import asyncio
 import os
-from aiogram import Bot, Dispatcher, types, F
-from aiogram.filters import StateFilter, Command
+
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from dotenv import load_dotenv, find_dotenv
+
 from admins_router import admins_router, create_admins_router
-from database import create_con_pol, alarm, export_mysql_to_excel
-from info import Admin, keyboard2, keyboard1, find_keyboard, User
-from main import algorithm, sub_dp, process_user, create_main
-from tg import auth, get_users_data, get_one_user, edit_message
+from database import create_con_pol, alarm
+from info import Admin, keyboard2, keyboard1
+from main import algorithm, sub_dp, create_main
+from tg import auth, edit_message
 
 load_dotenv(find_dotenv())
 bot = Bot(token=os.getenv("TOKEN"))
@@ -40,7 +42,7 @@ async def main():
     await create_con_pol()
     await create_admins_router(bot)
     await create_main(bot)
-    scheduler.add_job(algorithm, trigger=CronTrigger(hour=11, minute=42, timezone='Europe/Moscow'))
+    scheduler.add_job(algorithm, trigger=CronTrigger(hour=20, minute=30, timezone='Europe/Moscow'))
     scheduler.add_job(alarm, args=[bot], trigger=CronTrigger(hour=11, minute=0, timezone='Europe/Moscow'))
     scheduler.start()
     await dp.start_polling(bot)
