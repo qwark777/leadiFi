@@ -15,6 +15,7 @@ async def create_con_pol():
 
 
 async def alarm(bot: Bot):
+
     string = f'SELECT id_user, data, id_message FROM users WHERE CURDATE() >= DATE_ADD(data, INTERVAL 7 day)'
     try:
         async with pool.acquire() as conn:
@@ -22,12 +23,13 @@ async def alarm(bot: Bot):
                 await cursor.execute(string)
                 result_set = await cursor.fetchall()
                 for i in result_set:
-                    if i[0] == 0 or i[2] == 0:
+                    if i[1] == 0 or i[3] == 0:
                         return
-                    chat = await bot.get_chat(i[0])
+                    chat = await bot.get_chat(i[1])
                     await bot.send_message(Admin.test_chat, f'Напоминаю @{chat.username} о клиенте',
                                            reply_to_message_id=i[2])
-                    st = f"""UPDATE users set data = CURDATE() where id_message={i[2]}"""
+                    st = f"""UPDATE users set data = CURDATE() where id_message={i[3
+                    ]}"""
                     async with pool.acquire() as con:
                         async with con.cursor() as cur:
                             await cur.execute(st)
