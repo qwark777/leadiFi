@@ -33,6 +33,8 @@ async def get_tel(callback_query: types.CallbackQuery, state: FSMContext):
         await callback_query.message.edit_text(text=callback_query.message.html_text, reply_markup=keyboard1,  parse_mode="HTML")
 
 
+
+
 async def main():
     # dp.startup.register(start_message)
     # dp.shutdown.register(end_message)
@@ -42,7 +44,7 @@ async def main():
     await create_con_pol()
     await create_admins_router(bot)
     await create_main(bot)
-    scheduler.add_job(algorithm, trigger=CronTrigger(hour=20, minute=30, timezone='Europe/Moscow'))
+    scheduler.add_job(algorithm, trigger=CronTrigger(hour=11, minute=52, timezone='Europe/Moscow'))
     scheduler.add_job(alarm, args=[bot], trigger=CronTrigger(hour=11, minute=0, timezone='Europe/Moscow'))
     scheduler.start()
     await dp.start_polling(bot)

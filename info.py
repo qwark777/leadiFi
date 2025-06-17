@@ -13,6 +13,7 @@ admins = [5201640740, 1188056958]
 
 class User(StatesGroup):
     find = State()
+    test = State()
 
 
 keyboard1 = InlineKeyboardMarkup(

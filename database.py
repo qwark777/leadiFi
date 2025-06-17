@@ -72,7 +72,7 @@ async def insert_data(inn: dict, i: str):
     try:
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                string = f"""INSERT INTO users set id_user = 0, id_message = 0, link = '{inn['link']}', name = '{inn['name']}', cost = '{inn['cost']}', date = '{inn['date']}' , name1 = '{inn['NAME1']}', inn1 = '{i}', inn_dir1 = '{', '.join(inn['ИНН_DIR1'])}', inn_own1 = '{', '.join(inn['ИНН_OWN1'])}', contact_site = '{inn['cont_from_page']}', name_dir1 = '{'|'.join(inn['ИНН_DIR1_name'])}', phone_dir1 = '{'|'.join(inn['ИНН_DIR1_phone'])}', name_own1 = '{'|'.join(inn['ИНН_OWN1_name'])}', phone_own1 = '{'|'.join(inn['ИНН_OWN1_phone'])}', id_eac = '{inn['counter']}'"""
+                string = f"""INSERT INTO users set id_user = 0, id_message = 0, link = '{inn['link']}', name = '{inn['name']}', cost = '{inn['cost']}', date = '{inn['date']}' , name1 = '{inn['NAME1']}', inn1 = '{i}', inn_dir1 = '{', '.join(inn['ИНН_DIR1'])}', inn_own1 = '{', '.join(inn['ИНН_OWN1'])}', contact_site = '{inn['cont_from_page']}', name_dir1 = '{'|'.join(inn['ИНН_DIR1_name'])}', phone_dir1 = '{'|'.join(inn['ИНН_DIR1_phone'])}', name_own1 = '{'|'.join(inn['ИНН_OWN1_name'])}', phone_own1 = '{'|'.join(inn['ИНН_OWN1_phone'])}', id_eac = '{inn['counter'] if inn['counter'] != "-" else 0}'"""
                 await cursor.execute(string)
                 await cursor.fetchall()
                 await conn.commit()

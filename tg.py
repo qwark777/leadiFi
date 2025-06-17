@@ -87,40 +87,39 @@ async def extract_name_and_phone(text:str) -> None:
         name = '-'
     if not phone_match:
         phone_match = '-'
-    if name != '-' or phone_match != '-':
-        if flag == 1:
-            if data_now_user['ИНН_DIR2_name'] == '-' and data_now_user['ИНН_DIR2_phone'] == '-':
-                data_now_user['ИНН_DIR2_name'] = [name, ]
-                data_now_user['ИНН_DIR2_phone'] = [phone_match, ]
-            else:
-                data_now_user['ИНН_DIR2_name'].append(name)
-                data_now_user['ИНН_DIR2_phone'].append(phone_match)
-        elif flag == 2:
-            if data_now_user['ИНН_OWN2_name'] == '-' and data_now_user['ИНН_OWN2_phone'] == '-':
-                data_now_user['ИНН_OWN2_name'] = [name, ]
-                data_now_user['ИНН_OWN2_phone'] = [phone_match, ]
-            else:
-                data_now_user['ИНН_OWN2_name'].append(name)
-                data_now_user['ИНН_OWN2_phone'].append(phone_match)
-        elif flag == 3:
-            if data_now_user['ИНН_DIR1_name'] == '-' and data_now_user['ИНН_DIR1_phone'] == '-':
-                data_now_user['ИНН_DIR1_name'] = [name, ]
-                data_now_user['ИНН_DIR1_phone'] = [phone_match, ]
-            else:
-                data_now_user['ИНН_DIR1_name'].append(name)
-                data_now_user['ИНН_DIR1_phone'].append(phone_match)
-        elif flag == 4:
-            if data_now_user['ИНН_OWN1_name'] == '-' and data_now_user['ИНН_OWN1_phone'] == '-':
-                data_now_user['ИНН_OWN1_name'] = [name, ]
-                data_now_user['ИНН_OWN1_phone'] = [phone_match, ]
-            else:
-                data_now_user['ИНН_OWN1_name'].append(name)
-                data_now_user['ИНН_OWN1_phone'].append(phone_match)
-
-        elif flag == 99:
-            data_now_user['solo'] = [f'{name} {phone_match}']
+    if flag == 1:
+        if data_now_user['ИНН_DIR2_name'] == '-' and data_now_user['ИНН_DIR2_phone'] == '-':
+            data_now_user['ИНН_DIR2_name'] = [name, ]
+            data_now_user['ИНН_DIR2_phone'] = [phone_match, ]
         else:
-            pass
+            data_now_user['ИНН_DIR2_name'].append(name)
+            data_now_user['ИНН_DIR2_phone'].append(phone_match)
+    elif flag == 2:
+        if data_now_user['ИНН_OWN2_name'] == '-' and data_now_user['ИНН_OWN2_phone'] == '-':
+            data_now_user['ИНН_OWN2_name'] = [name, ]
+            data_now_user['ИНН_OWN2_phone'] = [phone_match, ]
+        else:
+            data_now_user['ИНН_OWN2_name'].append(name)
+            data_now_user['ИНН_OWN2_phone'].append(phone_match)
+    elif flag == 3:
+        if data_now_user['ИНН_DIR1_name'] == '-' and data_now_user['ИНН_DIR1_phone'] == '-':
+            data_now_user['ИНН_DIR1_name'] = [name, ]
+            data_now_user['ИНН_DIR1_phone'] = [phone_match, ]
+        else:
+            data_now_user['ИНН_DIR1_name'].append(name)
+            data_now_user['ИНН_DIR1_phone'].append(phone_match)
+    elif flag == 4:
+        if data_now_user['ИНН_OWN1_name'] == '-' and data_now_user['ИНН_OWN1_phone'] == '-':
+            data_now_user['ИНН_OWN1_name'] = [name, ]
+            data_now_user['ИНН_OWN1_phone'] = [phone_match, ]
+        else:
+            data_now_user['ИНН_OWN1_name'].append(name)
+            data_now_user['ИНН_OWN1_phone'].append(phone_match)
+
+    elif flag == 99:
+        data_now_user['solo'] = [f'{name} {phone_match}']
+    else:
+        pass
     global semaphore
     semaphore.release()
     return
@@ -149,7 +148,6 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot, 
     #         await send_message(str(j))
     #     else:
     #         semaphore.release()
-
     for j in data_now_user['ИНН_DIR1']:
         await semaphore.acquire()
         flag = 3
@@ -200,21 +198,23 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot, 
 <b>Телефон {'Найден' if data_now_user['ИНН_DIR1_phone'][i] != '-' else 'Не найден'}</b>'''
         stri +='''\n<b>Учредители:</b>'''
         for i in range(len(data_now_user['ИНН_OWN1'])):
+            print(data_now_user)
             stri += f'''<b>\nИНН <code>{data_now_user['ИНН_OWN1'][i]}</code></b>
 <b>Имя {'Найдено' if data_now_user['ИНН_OWN1_name'][i] != '-' else 'Не найдено'}</b>
 <b>Телефон {'Найден' if data_now_user['ИНН_OWN1_phone'][i] != '-' else 'Не найден'}</b>'''
 
         stri += '\n<b>-------------------------------</b>'
+        await bt.send_message(Admin.id_chat_test, stri, parse_mode="HTML", reply_markup=keyboard1)
     else:
         stri = f'''
 <b>Название: {data_now_user['NAME1']}</b>
 <b>ИНН <code>{i}</code></b>
-<b>ИНН директора <code>{data_now_user['ИНН_DIR1']}</code></b>
+<b>ИНН директора <code>{', '.join(data_now_user['ИНН_DIR1'])}</code></b>
 <b>ИНН учредителей <code>{', '.join(data_now_user['ИНН_OWN1'])}</code></b>
 <b>Контакты директора {data_now_user['ИНН_DIR1_contacts']}</b>
 <b>Контакты учредителей {', '.join(data_now_user['ИНН_OWN1_contacts'])}</b>
 <b>-------------------------------</b>'''
-    await bt.send_message(Admin.id_chat_test, stri, parse_mode="HTML", reply_markup=keyboard1)
+        await bt.send_message(Admin.id_chat_test, stri, parse_mode="HTML", reply_markup=keyboard1)
     sm.release()
 
 
@@ -244,7 +244,6 @@ async def edit_message(callback_query: types.CallbackQuery, bt: Bot):
     data_now_user = defaultdict(lambda : '-')
     await select_users2(num, data_now_user) # добавить выдачу данных из бд
     await get_user(num, callback_query)
-    print(data_now_user)
     stri = f'''<b>❗Найден новый lead №{data_now_user['counter']}❗</b>
 <b>C сайта ЕАС/контракты</b>
 <a href="{data_now_user['link']}">Ссылка на контракт </a>

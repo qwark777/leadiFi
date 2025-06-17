@@ -28,4 +28,4 @@ async def process_inn(inn: str) -> bool:
         finally:
             await context.close()
             await browser.close()
-            return True if flag else False
+        return True if flag else False

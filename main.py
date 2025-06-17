@@ -30,9 +30,13 @@ async def continue_registration_calling(callback_query: types.CallbackQuery):
     if not inn:
         inn = defaultdict(lambda : defaultdict(lambda : '-'))
     if index == 1:
-        await callback_query.message.edit_text('Обработка 🔄', reply_markup=None)
-        await select_users1(callback_query.message.text.split('\n')[0], inn[callback_query.message.text.split('\n')[1]])
-        await process_user(callback_query.message.text.split('\n')[1])
+        try:
+            await callback_query.message.edit_text('Обработка 🔄', reply_markup=None)
+            await select_users1(callback_query.message.text.split('\n')[0], inn[callback_query.message.text.split('\n')[1]])
+            await process_user(callback_query.message.text.split('\n')[1])
+        except Exception as e:
+            await callback_query.message.edit_text(f'Произошла ошибка в обработке лида: {e}', reply_markup=None)
+            print(e, continue_registration_calling.__name__)
         await bot.delete_message(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id)
     elif index == 2:
         await bot.delete_message(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id)
