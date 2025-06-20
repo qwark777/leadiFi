@@ -15,7 +15,7 @@ async def create_con_pol():
 
 
 async def alarm(bot: Bot):
-
+    await bot.send_message(Admin.id_chat_ivan, 'Напоминания отправлены')
     string = f'SELECT id_user, data, id_message FROM users WHERE CURDATE() >= DATE_ADD(data, INTERVAL 7 day)'
     try:
         async with pool.acquire() as conn:
@@ -23,13 +23,12 @@ async def alarm(bot: Bot):
                 await cursor.execute(string)
                 result_set = await cursor.fetchall()
                 for i in result_set:
-                    if i[1] == 0 or i[3] == 0:
+                    if i[0] == 0 or i[2] == 0:
                         return
                     chat = await bot.get_chat(i[1])
-                    await bot.send_message(Admin.test_chat, f'Напоминаю @{chat.username} о клиенте',
-                                           reply_to_message_id=i[2])
-                    st = f"""UPDATE users set data = CURDATE() where id_message={i[3
-                    ]}"""
+                    await bot.send_message(Admin.id_chat_users, f'Напоминаю @{chat.username} о клиенте',
+                                           reply_to_message_id=i[3])
+                    st = f"""UPDATE users set data = CURDATE() where id_message={i[3]}"""
                     async with pool.acquire() as con:
                         async with con.cursor() as cur:
                             await cur.execute(st)
@@ -75,6 +74,8 @@ async def insert_data(inn: dict, i: str):
                 string = f"""INSERT INTO users set id_user = 0, id_message = 0, link = '{inn['link']}', name = '{inn['name']}', cost = '{inn['cost']}', date = '{inn['date']}' , name1 = '{inn['NAME1']}', inn1 = '{i}', inn_dir1 = '{', '.join(inn['ИНН_DIR1'])}', inn_own1 = '{', '.join(inn['ИНН_OWN1'])}', contact_site = '{inn['cont_from_page']}', name_dir1 = '{'|'.join(inn['ИНН_DIR1_name'])}', phone_dir1 = '{'|'.join(inn['ИНН_DIR1_phone'])}', name_own1 = '{'|'.join(inn['ИНН_OWN1_name'])}', phone_own1 = '{'|'.join(inn['ИНН_OWN1_phone'])}', id_eac = '{inn['counter'] if inn['counter'] != "-" else 0}'"""
                 await cursor.execute(string)
                 await cursor.fetchall()
+                last_id = cursor.lastrowid
+                inn['counter'] = last_id
                 await conn.commit()
 
     except Exception as e:
