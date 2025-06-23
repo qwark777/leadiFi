@@ -25,10 +25,10 @@ async def alarm(bot: Bot):
                 for i in result_set:
                     if i[0] == 0 or i[2] == 0:
                         return
-                    chat = await bot.get_chat(i[1])
+                    chat = await bot.get_chat(i[0])
                     await bot.send_message(Admin.id_chat_users, f'Напоминаю @{chat.username} о клиенте',
-                                           reply_to_message_id=i[3])
-                    st = f"""UPDATE users set data = CURDATE() where id_message={i[3]}"""
+                                           reply_to_message_id=i[2])
+                    st = f"""UPDATE users set data = CURDATE() where id_message={i[2]}"""
                     async with pool.acquire() as con:
                         async with con.cursor() as cur:
                             await cur.execute(st)
@@ -118,7 +118,7 @@ async def select_users2(id_: str, inn: defaultdict):
     try:
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                string = f"""select link, name, cost, date, name1, inn1, inn_dir1, inn_own1, contact_site, name_dir1, phone_dir1, name_own1, phone_own1 from users where id_eac = {id_}"""
+                string = f"""select link, name, cost, date, name1, inn1, inn_dir1, inn_own1, contact_site, name_dir1, phone_dir1, name_own1, phone_own1 from users where id = {id_}"""
                 await cursor.execute(string)
                 ans = await cursor.fetchall()
                 ans = ans[0]
@@ -154,3 +154,19 @@ async def check_user(name: str) -> bool:
     except Exception as e:
         print(f"Ошибка при экспорте: {e}", check_user.__name__)
         return False
+
+
+async def select_all(inn: defaultdict):
+    try:
+        async with pool.acquire() as conn:
+            async with conn.cursor() as cursor:
+                string = f"""select link, name, cost, date, name1, inn1, inn_dir1, inn_own1, contact_site, name_dir1, phone_dir1, name_own1, phone_own1 from users where id > 97"""
+                await cursor.execute(string)
+                ans = await cursor.fetchall()
+                for i in ans:
+                    inn[i]['link'], inn[i]['name'],  inn[i]['cost'], inn[i]['date'], inn[i]['NAME1'], inn[i]['ИНН_slave1'], inn[i]['ИНН_DIR1'], inn[i]['ИНН_OWN1'], inn[i]['cont_from_page'], inn[i]['ИНН_DIR1_name'], inn[i]['ИНН_DIR1_phone'], inn[i]['ИНН_OWN1_name'], inn[i]['ИНН_OWN1_phone'], inn[i]['counter'] = ans[0], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6].split(', '), ans[7].split(', '), ans[8], ans[9].split('|'), ans[10].split('|'), ans[11].split('|'), ans[12].split('|'), id_
+                await conn.commit()
+    except Exception as e:
+        print(f"Ошибка при экспорте: {e}", select_users2.__name__)
+        return False
+    return True

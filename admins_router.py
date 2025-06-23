@@ -6,8 +6,8 @@ from aiogram.filters import StateFilter, Command
 from aiogram.fsm.context import FSMContext
 from playwright.async_api import async_playwright
 
-from database import export_mysql_to_excel
-from info import users, User, admins
+from database import export_mysql_to_excel, select_all
+from info import users, User, admins, Admin, keyboard1
 from main import process_user
 from tg import get_one_user
 
@@ -16,6 +16,37 @@ global bot
 async def create_admins_router(bt: Bot):
     global bot
     bot = bt
+
+@admins_router.message(StateFilter(None), Command("print"))
+async def xyita(message: types.Message, state: FSMContext):
+    data_now_user = defaultdict(lambda: defaultdict(lambda: '-'))
+    await select_all(data_now_user)
+    for i in data_now_user:
+        stri = f'''<b>❗Найден новый lead №{data_now_user['counter']}❗</b>
+<b>C сайта ЕАС/контракты</b>
+<a href="{data_now_user['link']}">Ссылка на контракт </a>
+<b>Объект закупки: {data_now_user['name']}</b>
+<b>Стоимость контракта {data_now_user['cost']}</b>
+<b>Дата контракта {data_now_user['date']}</b>
+<b>-------------------------------</b>
+<b>Исполнитель</b>
+<b>Название: {data_now_user['NAME1']}</b>
+<b>ИНН <code>{i}</code></b>
+<b>Контакты с сайта {data_now_user['cont_from_page']}</b>
+<b>Директора:</b>'''
+        for i in range(len(data_now_user['ИНН_DIR1'])):
+            stri += f'''<b>\nИНН <code>{data_now_user['ИНН_DIR1'][i]}</code></b>
+<b>Имя {'Найдено' if data_now_user['ИНН_DIR1_name'][i] != '-' else 'Не найдено'}</b>
+<b>Телефон {'Найден' if data_now_user['ИНН_DIR1_phone'][i] != '-' else 'Не найден'}</b>'''
+        stri += '''\n<b>Учредители:</b>'''
+        for i in range(len(data_now_user['ИНН_OWN1'])):
+            print(data_now_user)
+            stri += f'''<b>\nИНН <code>{data_now_user['ИНН_OWN1'][i]}</code></b>
+<b>Имя {'Найдено' if data_now_user['ИНН_OWN1_name'][i] != '-' else 'Не найдено'}</b>
+<b>Телефон {'Найден' if data_now_user['ИНН_OWN1_phone'][i] != '-' else 'Не найден'}</b>'''
+
+        stri += '\n<b>-------------------------------</b>'
+        await bot.send_message(Admin.id_chat_test, stri, parse_mode="HTML", reply_markup=keyboard1)
 
 
 @admins_router.message(StateFilter(None), Command("data"))

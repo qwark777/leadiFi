@@ -1,7 +1,8 @@
-import asyncio
 from collections import defaultdict
 from datetime import datetime
+
 from playwright.async_api import async_playwright
+
 prev_link = "https://zakupki.gov.ru"
 
 async def eac():
@@ -86,4 +87,5 @@ async def eac():
             await page.click('a.paginator-button-next')
     await browser.close()
     return inn
+
 
