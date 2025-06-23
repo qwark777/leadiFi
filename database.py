@@ -160,11 +160,11 @@ async def select_all(inn: defaultdict):
     try:
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                string = f"""select link, name, cost, date, name1, inn1, inn_dir1, inn_own1, contact_site, name_dir1, phone_dir1, name_own1, phone_own1 from users where id > 97"""
+                string = f"""select link, name, cost, date, name1, inn1, inn_dir1, inn_own1, contact_site, name_dir1, phone_dir1, name_own1, phone_own1, id from users where id > 97"""
                 await cursor.execute(string)
                 ans = await cursor.fetchall()
-                for i, j in ans:
-                    inn[i]['link'], inn[i]['name'],  inn[i]['cost'], inn[i]['date'], inn[i]['NAME1'], inn[i]['ИНН_slave1'], inn[i]['ИНН_DIR1'], inn[i]['ИНН_OWN1'], inn[i]['cont_from_page'], inn[i]['ИНН_DIR1_name'], inn[i]['ИНН_DIR1_phone'], inn[i]['ИНН_OWN1_name'], inn[i]['ИНН_OWN1_phone'] = j[0], j[1], j[2], j[3], j[4], j[5], j[6].split(', '), j[7].split(', '), j[8], j[9].split('|'), j[10].split('|'), j[11].split('|'), j[12].split('|')
+                for i in ans:
+                    inn[i[5]]['link'], inn[i[5]]['name'],  inn[i[5]]['cost'], inn[i[5]]['date'], inn[i[5]]['NAME1'], inn[i[5]]['ИНН_slave1'], inn[i[5]]['ИНН_DIR1'], inn[i[5]]['ИНН_OWN1'], inn[i[5]]['cont_from_page'], inn[i[5]]['ИНН_DIR1_name'], inn[i[5]]['ИНН_DIR1_phone'], inn[i[5]]['ИНН_OWN1_name'], inn[i[5]]['ИНН_OWN1_phone'], inn[i[5]]['counter'] = i[0], i[1], i[2], i[3], i[4], i[5], i[6].split(', '), i[7].split(', '), i[8], i[9].split('|'), i[10].split('|'), i[11].split('|'), i[12].split('|'), i[13]
                 await conn.commit()
     except Exception as e:
         print(f"Ошибка при экспорте: {e}", select_all.__name__)

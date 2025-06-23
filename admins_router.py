@@ -22,28 +22,27 @@ async def xyita(message: types.Message, state: FSMContext):
     data_now_user = defaultdict(lambda: defaultdict(lambda: '-'))
     await select_all(data_now_user)
     for i in data_now_user:
-        stri = f'''<b>❗Найден новый lead №{data_now_user['counter']}❗</b>
+        stri = f'''<b>❗Найден новый lead №{data_now_user[i]['counter']}❗</b>
 <b>C сайта ЕАС/контракты</b>
-<a href="{data_now_user['link']}">Ссылка на контракт </a>
-<b>Объект закупки: {data_now_user['name']}</b>
-<b>Стоимость контракта {data_now_user['cost']}</b>
-<b>Дата контракта {data_now_user['date']}</b>
+<a href="{data_now_user[i]['link']}">Ссылка на контракт </a>
+<b>Объект закупки: {data_now_user[i]['name']}</b>
+<b>Стоимость контракта {data_now_user[i]['cost']}</b>
+<b>Дата контракта {data_now_user[i]['date']}</b>
 <b>-------------------------------</b>
 <b>Исполнитель</b>
-<b>Название: {data_now_user['NAME1']}</b>
+<b>Название: {data_now_user[i]['NAME1']}</b>
 <b>ИНН <code>{i}</code></b>
-<b>Контакты с сайта {data_now_user['cont_from_page']}</b>
+<b>Контакты с сайта {data_now_user[i]['cont_from_page']}</b>
 <b>Директора:</b>'''
-        for i in range(len(data_now_user['ИНН_DIR1'])):
-            stri += f'''<b>\nИНН <code>{data_now_user['ИНН_DIR1'][i]}</code></b>
-<b>Имя {'Найдено' if data_now_user['ИНН_DIR1_name'][i] != '-' else 'Не найдено'}</b>
-<b>Телефон {'Найден' if data_now_user['ИНН_DIR1_phone'][i] != '-' else 'Не найден'}</b>'''
+        for j in range(len(data_now_user[i]['ИНН_DIR1'])):
+            stri += f'''<b>\nИНН <code>{data_now_user[i]['ИНН_DIR1'][j]}</code></b>
+<b>Имя {'Найдено' if data_now_user[i]['ИНН_DIR1_name'][j] != '-' else 'Не найдено'}</b>
+<b>Телефон {'Найден' if data_now_user[i]['ИНН_DIR1_phone'][j] != '-' else 'Не найден'}</b>'''
         stri += '''\n<b>Учредители:</b>'''
-        for i in range(len(data_now_user['ИНН_OWN1'])):
-            print(data_now_user)
-            stri += f'''<b>\nИНН <code>{data_now_user['ИНН_OWN1'][i]}</code></b>
-<b>Имя {'Найдено' if data_now_user['ИНН_OWN1_name'][i] != '-' else 'Не найдено'}</b>
-<b>Телефон {'Найден' if data_now_user['ИНН_OWN1_phone'][i] != '-' else 'Не найден'}</b>'''
+        for j in range(len(data_now_user[i]['ИНН_OWN1'])):
+            stri += f'''<b>\nИНН <code>{data_now_user[i]['ИНН_OWN1'][j]}</code></b>
+<b>Имя {'Найдено' if data_now_user[i]['ИНН_OWN1_name'][j] != '-' else 'Не найдено'}</b>
+<b>Телефон {'Найден' if data_now_user[i]['ИНН_OWN1_phone'][j] != '-' else 'Не найден'}</b>'''
 
         stri += '\n<b>-------------------------------</b>'
         await bot.send_message(Admin.id_chat_test, stri, parse_mode="HTML", reply_markup=keyboard1)
