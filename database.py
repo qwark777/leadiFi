@@ -3,7 +3,7 @@ import aiomysql
 from aiogram import Bot, types
 from openpyxl import Workbook
 from info import Admin
-
+from xsls import add_row_to_table
 
 global pool
 
@@ -76,6 +76,8 @@ async def insert_data(inn: dict, i: str):
                 await cursor.fetchall()
                 last_id = cursor.lastrowid
                 inn['counter'] = last_id
+                await add_row_to_table([last_id] + [0, 0, 0, inn['link'], inn['name'], inn['cost'], inn['date'], inn['NAME1'], i, ', '.join(inn['ИНН_DIR1']), ', '.join(inn['ИНН_OWN1']), inn['cont_from_page'], '|'.join(inn['ИНН_DIR1_name']), '|'.join(inn['ИНН_DIR1_phone']), '|'.join(inn['ИНН_OWN1_name']), '|'.join(inn['ИНН_OWN1_phone']), inn['counter'] if inn['counter'] != "-" else 0])
+
                 await conn.commit()
 
     except Exception as e:
