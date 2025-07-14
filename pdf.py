@@ -53,7 +53,7 @@ async def pdf_parcer1(pdf_path: str, answer: defaultdict) -> bool:
         return False
     finally:
         os.remove(pdf_path)
-        return True
+    return True
 
 
 async def pdf_parcer2(pdf_path: str, answer: defaultdict) -> bool:

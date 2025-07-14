@@ -4,6 +4,7 @@ from collections import defaultdict
 from aiogram import Bot
 from aiogram import Router, types
 
+from checko import checko
 from database import users_transfer, select_users1, check_user
 from eac import eac
 from info import Admin, keyboard3
@@ -73,6 +74,8 @@ async def process_user(i:str, flg: int = 1, chat: int=Admin.id_chat_users):
     else:
         print(f'Lost file{i}')
     await sem.acquire()
+    x = await checko(i)
+    inn[i]['count_checko'] = x
     await get_users_data(inn[i], sem, i, bot, flg)
 
 

@@ -71,12 +71,12 @@ async def insert_data(inn: dict, i: str):
     try:
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                string = f"""INSERT INTO users set id_user = 0, id_message = 0, link = '{inn['link']}', name = '{inn['name']}', cost = '{inn['cost']}', date = '{inn['date']}' , name1 = '{inn['NAME1']}', inn1 = '{i}', inn_dir1 = '{', '.join(inn['ИНН_DIR1'])}', inn_own1 = '{', '.join(inn['ИНН_OWN1'])}', contact_site = '{inn['cont_from_page']}', name_dir1 = '{'|'.join(inn['ИНН_DIR1_name'])}', phone_dir1 = '{'|'.join(inn['ИНН_DIR1_phone'])}', name_own1 = '{'|'.join(inn['ИНН_OWN1_name'])}', phone_own1 = '{'|'.join(inn['ИНН_OWN1_phone'])}', id_eac = '{inn['counter'] if inn['counter'] != "-" else 0}'"""
+                string = f"""INSERT INTO users set id_user = 0, id_message = 0, link = '{inn['link']}', name = '{inn['name']}', cost = '{inn['cost']}', date = '{inn['date']}' , name1 = '{inn['NAME1']}', inn1 = '{i}', inn_dir1 = '{', '.join(inn['ИНН_DIR1'])}', inn_own1 = '{', '.join(inn['ИНН_OWN1'])}', contact_site = '{inn['cont_from_page']}', name_dir1 = '{'|'.join(inn['ИНН_DIR1_name'])}', phone_dir1 = '{'|'.join(inn['ИНН_DIR1_phone'])}', name_own1 = '{'|'.join(inn['ИНН_OWN1_name'])}', phone_own1 = '{'|'.join(inn['ИНН_OWN1_phone'])}', id_eac = '{inn['counter'] if inn['counter'] != "-" else 0}', count_contacts = {inn["count_checko"]}"""
                 await cursor.execute(string)
                 await cursor.fetchall()
                 last_id = cursor.lastrowid
                 inn['counter'] = last_id
-                await add_row_to_table([last_id] + [0, 0, 0, inn['link'], inn['name'], inn['cost'], inn['date'], inn['NAME1'], i, ', '.join(inn['ИНН_DIR1']), ', '.join(inn['ИНН_OWN1']), inn['cont_from_page'], '|'.join(inn['ИНН_DIR1_name']), '|'.join(inn['ИНН_DIR1_phone']), '|'.join(inn['ИНН_OWN1_name']), '|'.join(inn['ИНН_OWN1_phone']), inn['counter'] if inn['counter'] != "-" else 0])
+                await add_row_to_table([last_id] + [0, 0, 0, inn['link'], inn['name'], inn['cost'], inn['date'], inn['NAME1'], i, ', '.join(inn['ИНН_DIR1']), ', '.join(inn['ИНН_OWN1']), inn['cont_from_page'], '|'.join(inn['ИНН_DIR1_name']), '|'.join(inn['ИНН_DIR1_phone']), '|'.join(inn['ИНН_OWN1_name']), '|'.join(inn['ИНН_OWN1_phone']), inn['counter'] if inn['counter'] != "-" else 0, inn["count_checko"]])
 
                 await conn.commit()
 
@@ -120,11 +120,11 @@ async def select_users2(id_: str, inn: defaultdict):
     try:
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                string = f"""select link, name, cost, date, name1, inn1, inn_dir1, inn_own1, contact_site, name_dir1, phone_dir1, name_own1, phone_own1 from users where id = {id_}"""
+                string = f"""select link, name, cost, date, name1, inn1, inn_dir1, inn_own1, contact_site, name_dir1, phone_dir1, name_own1, phone_own1, count_contacts from users where id = {id_}"""
                 await cursor.execute(string)
                 ans = await cursor.fetchall()
                 ans = ans[0]
-                inn['link'], inn['name'],  inn['cost'], inn['date'], inn['NAME1'], inn['ИНН_slave1'], inn['ИНН_DIR1'], inn['ИНН_OWN1'], inn['cont_from_page'], inn['ИНН_DIR1_name'], inn['ИНН_DIR1_phone'], inn['ИНН_OWN1_name'], inn['ИНН_OWN1_phone'], inn['counter'] = ans[0], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6].split(', '), ans[7].split(', '), ans[8], ans[9].split('|'), ans[10].split('|'), ans[11].split('|'), ans[12].split('|'), id_
+                inn['link'], inn['name'],  inn['cost'], inn['date'], inn['NAME1'], inn['ИНН_slave1'], inn['ИНН_DIR1'], inn['ИНН_OWN1'], inn['cont_from_page'], inn['ИНН_DIR1_name'], inn['ИНН_DIR1_phone'], inn['ИНН_OWN1_name'], inn['ИНН_OWN1_phone'], inn['counter'], inn['count_checko'] = ans[0], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6].split(', '), ans[7].split(', '), ans[8], ans[9].split('|'), ans[10].split('|'), ans[11].split('|'), ans[12].split('|'), id_, ans[13]
                 await conn.commit()
     except Exception as e:
         print(f"Ошибка при экспорте: {e}", select_users2.__name__)

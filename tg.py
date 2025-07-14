@@ -62,7 +62,6 @@ async def extract_name_and_phone(text:str) -> None:
     name_match = re.search(name_pattern, text)
     name = name_match.group(1) if name_match else ''
     if not name:
-        print(1)
         name_pattern = r'''Лица:\n└ ([А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+)\n'''
         name_match = re.search(name_pattern, text)
         name = name_match.group(1) if name_match else ''
@@ -190,6 +189,7 @@ async def get_users_data(a:defaultdict, sm: asyncio.Semaphore, i: str, bt: Bot, 
 <b>Исполнитель</b>
 <b>Название: {data_now_user['NAME1']}</b>
 <b>ИНН <code>{i}</code></b>
+<b>Количество контрактов лизинга {data_now_user['count_checko']}</b>
 <b>Контакты с сайта {data_now_user['cont_from_page']}</b>
 <b>Директора:</b>'''
         for i in range(len(data_now_user['ИНН_DIR1'])):
@@ -254,6 +254,7 @@ async def edit_message(callback_query: types.CallbackQuery, bt: Bot):
 <b>Исполнитель</b>
 <b>Название: {data_now_user['NAME1']}</b>
 <b>ИНН <code>{data_now_user['ИНН_slave1']}</code></b>
+<b>Количество контрактов лизинга {data_now_user['count_checko']}</b>
 <b>Контакты с сайта {data_now_user['cont_from_page']}</b>
 <b>Директор:</b>'''
     for i in range(len(data_now_user['ИНН_DIR1'])):

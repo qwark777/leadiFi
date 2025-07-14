@@ -32,6 +32,7 @@ async def xyita(message: types.Message, state: FSMContext):
 <b>Исполнитель</b>
 <b>Название: {data_now_user[i]['NAME1']}</b>
 <b>ИНН <code>{i}</code></b>
+<b>Количество контрактов лизинга {i}</b>
 <b>Контакты с сайта {data_now_user[i]['cont_from_page']}</b>
 <b>Директора:</b>'''
         for j in range(len(data_now_user[i]['ИНН_DIR1'])):
